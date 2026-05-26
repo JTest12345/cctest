@@ -1,0 +1,20 @@
+{
+  "name": "週レシピ管理",
+  "short_name": "週レシピ",
+  "description": "一週間の献立を曜日ごとに計画し、材料の使用をチェックして管理するアプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f3ef",
+  "theme_color": "#4a7c59",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

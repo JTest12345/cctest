@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#4a7c59">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="週レシピ">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <title>週レシピ管理</title>
+</head>
+<body>
+  <header class="app-header">
+    <h1>🍳 週レシピ</h1>
+  </header>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="week">今週の献立</button>
+    <button class="tab-btn" data-tab="recipes">レシピ管理</button>
+    <button class="tab-btn" data-tab="history">履歴</button>
+  </nav>
+
+  <main class="content">
+    <!-- 今週の献立 -->
+    <section id="tab-week" class="tab-panel active">
+      <div class="week-header">
+        <button id="prevWeek" class="week-nav-btn">‹</button>
+        <div id="weekLabel" class="week-label"></div>
+        <button id="nextWeek" class="week-nav-btn">›</button>
+      </div>
+      <div id="weekContainer" class="week-container"></div>
+    </section>
+
+    <!-- レシピ管理 -->
+    <section id="tab-recipes" class="tab-panel">
+      <div class="recipe-controls">
+        <input type="text" id="recipeSearch" placeholder="🔍 レシピを検索" class="search-input">
+        <button id="addRecipeBtn" class="primary-btn">＋ 新規レシピ</button>
+      </div>
+      <div class="category-filter">
+        <button class="cat-btn active" data-cat="all">すべて</button>
+        <button class="cat-btn" data-cat="和食">和食</button>
+        <button class="cat-btn" data-cat="洋食">洋食</button>
+        <button class="cat-btn" data-cat="中華">中華</button>
+        <button class="cat-btn" data-cat="その他">その他</button>
+      </div>
+      <div id="recipeList" class="recipe-list"></div>
+    </section>
+
+    <!-- 履歴 -->
+    <section id="tab-history" class="tab-panel">
+      <h2 class="section-title">完了履歴</h2>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <!-- 材料チェック画面（モーダル） -->
+  <div id="cookModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="cookModal">✕</button>
+      <h2 id="cookRecipeName" class="modal-title"></h2>
+      <div class="progress-bar"><div id="cookProgress" class="progress-fill"></div></div>
+      <div id="cookProgressText" class="progress-text"></div>
+      <ul id="cookIngredients" class="ingredient-check-list"></ul>
+      <div class="modal-actions">
+        <button id="completeCookBtn" class="primary-btn full-width" disabled>すべて使用 → 完了</button>
+        <button id="removeFromWeekBtn" class="danger-btn full-width">この曜日から削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- レシピ選択モーダル -->
+  <div id="selectRecipeModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="selectRecipeModal">✕</button>
+      <h2 class="modal-title" id="selectModalTitle">料理を選ぶ</h2>
+      <input type="text" id="selectSearch" placeholder="🔍 検索" class="search-input">
+      <div id="selectRecipeList" class="recipe-list compact"></div>
+    </div>
+  </div>
+
+  <!-- レシピ編集モーダル -->
+  <div id="editRecipeModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="editRecipeModal">✕</button>
+      <h2 class="modal-title" id="editModalTitle">レシピ編集</h2>
+      <label class="form-label">料理名
+        <input type="text" id="editName" class="form-input">
+      </label>
+      <label class="form-label">カテゴリ
+        <select id="editCategory" class="form-input">
+          <option value="和食">和食</option>
+          <option value="洋食">洋食</option>
+          <option value="中華">中華</option>
+          <option value="その他">その他</option>
+        </select>
+      </label>
+      <label class="form-label">材料（1行ずつ）
+        <textarea id="editIngredients" class="form-input" rows="10" placeholder="例:&#10;玉ねぎ&#10;人参&#10;じゃがいも"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button id="saveRecipeBtn" class="primary-btn full-width">保存</button>
+        <button id="deleteRecipeBtn" class="danger-btn full-width hidden">削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="recipes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

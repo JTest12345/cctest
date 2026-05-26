@@ -1,0 +1,251 @@
+/* ===== 基本リセット ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 16px;
+  color: #2d2d2d;
+  background: #f5f3ef;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+}
+button { font-family: inherit; font-size: 1rem; cursor: pointer; border: none; background: transparent; color: inherit; }
+input, textarea, select { font-family: inherit; font-size: 16px; }
+
+/* ===== ヘッダー ===== */
+.app-header {
+  background: linear-gradient(135deg, #4a7c59 0%, #5d9970 100%);
+  color: #fff;
+  padding: 14px 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky; top: 0; z-index: 10;
+}
+.app-header h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: 0.05em; }
+
+/* ===== タブナビ ===== */
+.tab-nav {
+  display: flex;
+  background: #fff;
+  border-bottom: 1px solid #e0dcd3;
+  position: sticky; top: 50px; z-index: 9;
+}
+.tab-btn {
+  flex: 1;
+  padding: 14px 8px;
+  color: #888;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.tab-btn.active { color: #4a7c59; border-bottom-color: #4a7c59; font-weight: 600; }
+
+/* ===== コンテンツ ===== */
+.content { padding: 12px; max-width: 720px; margin: 0 auto; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.section-title { font-size: 1.1rem; margin-bottom: 12px; color: #4a7c59; font-weight: 600; }
+
+/* ===== 週ヘッダー ===== */
+.week-header {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff; padding: 10px 14px; border-radius: 12px;
+  margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.week-nav-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #f5f3ef; color: #4a7c59; font-size: 1.3rem; font-weight: 600;
+}
+.week-nav-btn:active { background: #e0dcd3; }
+.week-label { font-weight: 600; font-size: 1rem; color: #2d2d2d; }
+
+/* ===== 週カレンダー ===== */
+.week-container { display: flex; flex-direction: column; gap: 10px; }
+.day-card {
+  background: #fff; border-radius: 12px; padding: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex; align-items: center; gap: 12px;
+  transition: transform 0.1s;
+}
+.day-card:active { transform: scale(0.99); }
+.day-card.today { border: 2px solid #4a7c59; }
+.day-card.completed { background: #e8f0ea; }
+.day-label {
+  min-width: 56px; text-align: center;
+  font-weight: 600; color: #4a7c59;
+}
+.day-label .day-name { display: block; font-size: 0.85rem; }
+.day-label .day-date { display: block; font-size: 1.3rem; line-height: 1.2; }
+.day-card.saturday .day-label { color: #3b82f6; }
+.day-card.sunday .day-label { color: #dc2626; }
+
+.day-recipe { flex: 1; min-width: 0; }
+.day-recipe-name { font-weight: 600; font-size: 1rem; color: #2d2d2d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.day-recipe-meta { font-size: 0.8rem; color: #888; margin-top: 2px; }
+.day-recipe.empty { color: #b8b0a0; font-size: 0.9rem; }
+
+.day-action {
+  background: #4a7c59; color: #fff; border-radius: 20px;
+  padding: 6px 14px; font-size: 0.85rem; font-weight: 500;
+  white-space: nowrap;
+}
+.day-action.completed-tag { background: #6b9a78; }
+.day-card.completed .day-action { background: #6b9a78; }
+
+/* ===== レシピ管理 ===== */
+.recipe-controls { display: flex; gap: 8px; margin-bottom: 10px; }
+.search-input {
+  flex: 1; padding: 10px 14px; border: 1px solid #e0dcd3;
+  border-radius: 24px; background: #fff;
+  outline: none; transition: border-color 0.2s;
+}
+.search-input:focus { border-color: #4a7c59; }
+.primary-btn {
+  background: #4a7c59; color: #fff; padding: 10px 18px;
+  border-radius: 24px; font-weight: 600; white-space: nowrap;
+  transition: background 0.2s;
+}
+.primary-btn:active { background: #3a6347; }
+.primary-btn:disabled { background: #b8b0a0; opacity: 0.7; }
+.danger-btn {
+  background: #dc2626; color: #fff; padding: 10px 18px;
+  border-radius: 24px; font-weight: 600;
+}
+.danger-btn:active { background: #b91c1c; }
+.full-width { width: 100%; }
+
+.category-filter { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px; }
+.cat-btn {
+  padding: 6px 14px; background: #fff; border-radius: 20px;
+  border: 1px solid #e0dcd3; font-size: 0.85rem; white-space: nowrap;
+  color: #666;
+}
+.cat-btn.active { background: #4a7c59; color: #fff; border-color: #4a7c59; }
+
+.recipe-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.recipe-list.compact { grid-template-columns: 1fr; gap: 6px; max-height: 60vh; overflow-y: auto; }
+.recipe-card {
+  background: #fff; padding: 12px; border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  cursor: pointer; transition: transform 0.1s;
+}
+.recipe-card:active { transform: scale(0.98); }
+.recipe-card-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+.recipe-card-meta { font-size: 0.75rem; color: #888; }
+.recipe-card-cat {
+  display: inline-block; padding: 2px 8px;
+  background: #f5f3ef; border-radius: 10px;
+  font-size: 0.7rem; color: #4a7c59; margin-right: 4px;
+}
+.recipe-list.compact .recipe-card { display: flex; justify-content: space-between; align-items: center; }
+.recipe-list.compact .recipe-card-name { margin-bottom: 0; }
+
+/* ===== 履歴 ===== */
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.history-item {
+  background: #fff; padding: 12px 14px; border-radius: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.history-name { font-weight: 600; }
+.history-date { font-size: 0.8rem; color: #888; }
+.history-empty { text-align: center; color: #b8b0a0; padding: 40px 20px; }
+
+/* ===== モーダル ===== */
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 100; display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  background: #fff; width: 100%; max-width: 600px;
+  max-height: 90vh; overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  padding: 20px 18px calc(env(safe-area-inset-bottom) + 24px);
+  position: relative;
+  animation: slideUp 0.25s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #f5f3ef; color: #666; font-size: 0.9rem;
+}
+.modal-title { font-size: 1.15rem; margin-bottom: 16px; padding-right: 36px; color: #2d2d2d; }
+.modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+
+/* ===== 進捗バー ===== */
+.progress-bar {
+  width: 100%; height: 8px; background: #e8e4dc; border-radius: 4px;
+  margin-bottom: 6px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, #4a7c59, #6b9a78);
+  width: 0%; transition: width 0.3s ease-out;
+}
+.progress-text { font-size: 0.85rem; color: #666; margin-bottom: 12px; }
+
+/* ===== 材料チェックリスト ===== */
+.ingredient-check-list { list-style: none; }
+.ingredient-check-list li {
+  display: flex; align-items: center; padding: 12px 4px;
+  border-bottom: 1px solid #f0ece3;
+  cursor: pointer;
+  user-select: none;
+}
+.ingredient-check-list li:last-child { border-bottom: none; }
+.ing-checkbox {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 2px solid #c8c2b5; margin-right: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s;
+}
+.ingredient-check-list li.checked .ing-checkbox {
+  background: #4a7c59; border-color: #4a7c59;
+}
+.ing-checkbox::after { content: '✓'; color: #fff; font-weight: bold; opacity: 0; transition: opacity 0.15s; }
+.ingredient-check-list li.checked .ing-checkbox::after { opacity: 1; }
+.ing-name { flex: 1; font-size: 1rem; }
+.ingredient-check-list li.checked .ing-name { color: #999; text-decoration: line-through; }
+
+/* ===== フォーム ===== */
+.form-label {
+  display: block; margin-bottom: 12px;
+  font-size: 0.85rem; color: #666; font-weight: 500;
+}
+.form-input {
+  display: block; width: 100%; padding: 10px 12px;
+  border: 1px solid #e0dcd3; border-radius: 8px;
+  margin-top: 4px; background: #fff; color: #2d2d2d;
+  outline: none; resize: vertical;
+}
+.form-input:focus { border-color: #4a7c59; }
+
+/* ===== トースト ===== */
+.toast {
+  position: fixed; bottom: calc(env(safe-area-inset-bottom) + 30px);
+  left: 50%; transform: translateX(-50%);
+  background: #2d2d2d; color: #fff;
+  padding: 12px 24px; border-radius: 24px;
+  font-size: 0.9rem; z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: toastIn 0.2s ease-out;
+}
+.toast.hidden { display: none; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+.hidden { display: none !important; }
+
+/* ===== レスポンシブ ===== */
+@media (min-width: 600px) {
+  .week-container { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .recipe-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
