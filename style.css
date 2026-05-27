@@ -146,15 +146,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .recipe-list.compact .recipe-card-name { margin-bottom: 0; }
 
 /* ===== 履歴 ===== */
+.history-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.history-header .section-title { margin-bottom: 0; }
+.danger-btn.small { padding: 6px 14px; font-size: 0.85rem; }
 .history-list { display: flex; flex-direction: column; gap: 8px; }
 .history-item {
   background: #fff; padding: 12px 14px; border-radius: 10px;
   display: flex; justify-content: space-between; align-items: center;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  gap: 10px;
 }
-.history-name { font-weight: 600; }
-.history-date { font-size: 0.8rem; color: #888; }
+.history-info { flex: 1; min-width: 0; }
+.history-name { font-weight: 600; margin-bottom: 4px; }
+.history-date { font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .history-empty { text-align: center; color: #b8b0a0; padding: 40px 20px; }
+.history-delete-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #f5f3ef; color: #999; font-size: 0.95rem;
+  flex-shrink: 0; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.history-delete-btn:active { background: #fde2e2; color: #dc2626; }
+@media (hover: hover) {
+  .history-delete-btn:hover { background: #fde2e2; color: #dc2626; }
+}
 
 /* ===== モーダル ===== */
 .modal {
@@ -213,8 +231,14 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .ing-checkbox::after { content: '✓'; color: #fff; font-weight: bold; opacity: 0; transition: opacity 0.15s; }
 .ingredient-check-list li.checked .ing-checkbox::after { opacity: 1; }
-.ing-name { flex: 1; font-size: 1rem; }
+.ing-name { flex: 1; font-size: 1rem; min-width: 0; }
+.ing-amount {
+  font-size: 0.85rem; color: #888; font-weight: 500;
+  white-space: nowrap; margin-left: 8px;
+  background: #f5f3ef; padding: 2px 10px; border-radius: 12px;
+}
 .ingredient-check-list li.checked .ing-name { color: #999; text-decoration: line-through; }
+.ingredient-check-list li.checked .ing-amount { opacity: 0.6; }
 
 /* ===== フォーム ===== */
 .form-label {
@@ -243,6 +267,77 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 .hidden { display: none !important; }
+.hidden-file { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+
+/* ===== 1日複数レシピ用 day-card 拡張 ===== */
+.day-card.multi { align-items: flex-start; flex-direction: column; }
+.day-card.multi .day-header-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 6px;
+}
+.day-card.multi .day-recipes-stack {
+  display: flex; flex-direction: column; gap: 6px; width: 100%;
+}
+.recipe-slot {
+  display: flex; align-items: center; gap: 10px;
+  background: #f9f7f1; border-radius: 8px; padding: 8px 12px;
+  cursor: pointer; transition: background 0.15s;
+}
+.recipe-slot:active { background: #efeada; }
+.recipe-slot.completed { background: #e8f0ea; }
+.recipe-slot-name { flex: 1; font-size: 0.95rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recipe-slot-meta { font-size: 0.75rem; color: #888; white-space: nowrap; }
+.recipe-slot.completed .recipe-slot-meta { color: #6b9a78; font-weight: 600; }
+.add-recipe-btn {
+  width: 100%; padding: 8px;
+  border: 1px dashed #c8c2b5; border-radius: 8px;
+  background: transparent; color: #888; font-size: 0.85rem;
+  transition: all 0.15s;
+}
+.add-recipe-btn:active { background: #f5f3ef; color: #4a7c59; border-color: #4a7c59; }
+
+/* ===== 写真サムネイル ===== */
+.history-photo {
+  width: 60px; height: 60px; border-radius: 8px;
+  object-fit: cover; flex-shrink: 0;
+  background: #f5f3ef; cursor: pointer;
+  border: 1px solid #e0dcd3;
+}
+.history-photo-placeholder {
+  width: 60px; height: 60px; border-radius: 8px;
+  background: #f5f3ef; border: 1px dashed #c8c2b5;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: #888;
+  flex-shrink: 0; cursor: pointer;
+  transition: all 0.15s;
+}
+.history-photo-placeholder:active { background: #e8f0ea; border-color: #4a7c59; color: #4a7c59; }
+
+/* ===== 写真ビュー ===== */
+.modal-content.small { max-width: 400px; }
+.photo-view-wrap {
+  width: 100%; max-height: 60vh; overflow: hidden;
+  background: #f5f3ef; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.photo-view-wrap img { max-width: 100%; max-height: 60vh; display: block; }
+
+/* ===== 写真アップロード進捗 ===== */
+.uploading-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 300; display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.uploading-spinner {
+  background: #2d2d2d; padding: 24px 32px; border-radius: 12px;
+  display: flex; align-items: center; gap: 12px; font-size: 0.95rem;
+}
+.spinner-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid #fff; border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ===== レスポンシブ ===== */
 @media (min-width: 600px) {

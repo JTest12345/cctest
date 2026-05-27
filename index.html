@@ -53,7 +53,10 @@
 
     <!-- 履歴 -->
     <section id="tab-history" class="tab-panel">
-      <h2 class="section-title">完了履歴</h2>
+      <div class="history-header">
+        <h2 class="section-title">完了履歴</h2>
+        <button id="clearAllHistoryBtn" class="danger-btn small hidden">全削除</button>
+      </div>
       <div id="historyList" class="history-list"></div>
     </section>
   </main>
@@ -96,15 +99,50 @@
           <option value="和食">和食</option>
           <option value="洋食">洋食</option>
           <option value="中華">中華</option>
+          <option value="エスニック">エスニック</option>
           <option value="その他">その他</option>
         </select>
       </label>
-      <label class="form-label">材料（1行ずつ）
-        <textarea id="editIngredients" class="form-input" rows="10" placeholder="例:&#10;玉ねぎ&#10;人参&#10;じゃがいも"></textarea>
+      <label class="form-label">何人前
+        <input type="number" id="editServings" class="form-input" min="1" max="20" value="2">
+      </label>
+      <label class="form-label">材料（1行ずつ、「材料名, 分量」形式）
+        <textarea id="editIngredients" class="form-input" rows="10" placeholder="例:&#10;玉ねぎ, 1個&#10;人参, 100g&#10;じゃがいも, 中2個（300g）&#10;&#10;※分量は省略可。カンマで区切ります"></textarea>
       </label>
       <div class="modal-actions">
         <button id="saveRecipeBtn" class="primary-btn full-width">保存</button>
         <button id="deleteRecipeBtn" class="danger-btn full-width hidden">削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 写真選択（隠し）- カメラ起動 / アルバム選択 -->
+  <input type="file" id="photoInputCamera" class="hidden-file" accept="image/*" capture="environment">
+  <input type="file" id="photoInputAlbum" class="hidden-file" accept="image/*">
+
+  <!-- 写真選択ソース選択モーダル -->
+  <div id="photoSourceModal" class="modal hidden">
+    <div class="modal-content small">
+      <button class="modal-close" data-close="photoSourceModal">✕</button>
+      <h2 class="modal-title">写真を追加</h2>
+      <div class="modal-actions">
+        <button id="photoFromCameraBtn" class="primary-btn full-width">📷 カメラで撮影</button>
+        <button id="photoFromAlbumBtn" class="primary-btn full-width">🖼️ アルバムから選択</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 写真拡大表示モーダル -->
+  <div id="photoViewModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="photoViewModal">✕</button>
+      <h2 class="modal-title" id="photoViewTitle">写真</h2>
+      <div class="photo-view-wrap">
+        <img id="photoViewImg" alt="料理の写真">
+      </div>
+      <div class="modal-actions">
+        <button id="photoReplaceBtn" class="primary-btn full-width">写真を差し替え</button>
+        <button id="photoDeleteBtn" class="danger-btn full-width">写真を削除</button>
       </div>
     </div>
   </div>
