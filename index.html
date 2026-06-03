@@ -19,9 +19,10 @@
   </header>
 
   <nav class="tab-nav">
-    <button class="tab-btn active" data-tab="week">今週の献立</button>
-    <button class="tab-btn" data-tab="recipes">レシピ管理</button>
+    <button class="tab-btn active" data-tab="week">献立</button>
+    <button class="tab-btn" data-tab="recipes">レシピ</button>
     <button class="tab-btn" data-tab="history">履歴</button>
+    <button class="tab-btn" data-tab="data">📦 データ</button>
   </nav>
 
   <main class="content">
@@ -51,6 +52,81 @@
       <div id="recipeList" class="recipe-list"></div>
     </section>
 
+    <!-- データ管理タブ -->
+    <section id="tab-data" class="tab-panel">
+      <h2 class="section-title">📦 データ管理</h2>
+
+      <div class="data-stats">
+        <div class="data-stat-row">
+          <span class="data-stat-label">レシピ</span>
+          <span id="statRecipeCount" class="data-stat-value">-</span>
+        </div>
+        <div class="data-stat-row">
+          <span class="data-stat-label">献立予定</span>
+          <span id="statPlanCount" class="data-stat-value">-</span>
+        </div>
+        <div class="data-stat-row">
+          <span class="data-stat-label">完了履歴</span>
+          <span id="statHistoryCount" class="data-stat-value">-</span>
+        </div>
+        <div class="data-stat-row">
+          <span class="data-stat-label">写真</span>
+          <span id="statPhotoCount" class="data-stat-value">-</span>
+        </div>
+        <div class="data-stat-row data-stat-total">
+          <span class="data-stat-label">推定容量</span>
+          <span id="statTotalSize" class="data-stat-value">-</span>
+        </div>
+      </div>
+
+      <div class="data-section-title">📤 書き出し（バックアップ・別端末への転送）</div>
+      <button id="exportDataBtn" class="big-action-btn">
+        <div class="big-action-icon">📤</div>
+        <div class="big-action-text">
+          <div class="big-action-title">データを書き出す</div>
+          <div class="big-action-desc">写真込みの全データをJSONで出力。iPhoneでは共有シートからAirDrop等で転送可能</div>
+          <div id="exportSizeBadge" class="size-badge"></div>
+        </div>
+      </button>
+
+      <div class="data-section-title">📥 取り込み（別端末から復元）</div>
+      <button id="importDataBtn" class="big-action-btn warning">
+        <div class="big-action-icon">📥</div>
+        <div class="big-action-text">
+          <div class="big-action-title">データを取り込む</div>
+          <div class="big-action-desc">既存データは全て上書きされます（取り込み前に自動バックアップを取得）</div>
+        </div>
+      </button>
+
+      <div class="data-section-title">⏪ 復元</div>
+      <button id="restoreBackupBtn" class="big-action-btn">
+        <div class="big-action-icon">⏪</div>
+        <div class="big-action-text">
+          <div class="big-action-title">直前のバックアップから復元</div>
+          <div class="big-action-desc" id="backupInfoText">バックアップはまだありません</div>
+        </div>
+      </button>
+
+      <input type="file" id="importFileInput" class="hidden-file" accept="application/json,.json">
+    </section>
+
+    <!-- インポートプレビュー -->
+    <div id="importPreviewModal" class="modal hidden">
+      <div class="modal-content">
+        <button class="modal-close" data-close="importPreviewModal">✕</button>
+        <h2 class="modal-title">取り込みデータの確認</h2>
+        <div id="importPreviewContent" class="import-preview-content"></div>
+        <div class="warning-box">
+          ⚠️ 取り込むと現在のデータは全て上書きされます。<br>
+          取り込み直前の状態は自動バックアップされ、「復元」から戻せます。
+        </div>
+        <div class="modal-actions">
+          <button id="confirmImportBtn" class="danger-btn full-width">上書きして取り込む</button>
+          <button class="primary-btn full-width" data-close="importPreviewModal" style="background:#888;">キャンセル</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 履歴 -->
     <section id="tab-history" class="tab-panel">
       <div class="history-header">
@@ -61,17 +137,17 @@
     </section>
   </main>
 
-  <!-- 材料チェック画面（モーダル） -->
+  <!-- レシピ内容表示モーダル -->
   <div id="cookModal" class="modal hidden">
     <div class="modal-content">
       <button class="modal-close" data-close="cookModal">✕</button>
       <h2 id="cookRecipeName" class="modal-title"></h2>
-      <div class="progress-bar"><div id="cookProgress" class="progress-fill"></div></div>
-      <div id="cookProgressText" class="progress-text"></div>
-      <ul id="cookIngredients" class="ingredient-check-list"></ul>
+      <div id="cookStatusText" class="cook-status-text"></div>
+      <h3 class="ingredient-section-title">材料</h3>
+      <ul id="cookIngredients" class="ingredient-list"></ul>
       <div class="modal-actions">
-        <button id="completeCookBtn" class="primary-btn full-width" disabled>すべて使用 → 完了</button>
-        <button id="removeFromWeekBtn" class="danger-btn full-width">この曜日から削除</button>
+        <button id="completeCookBtn" class="primary-btn full-width">✓ 料理完了（履歴に追加）</button>
+        <button id="removeFromWeekBtn" class="danger-btn full-width">この料理を削除</button>
       </div>
     </div>
   </div>

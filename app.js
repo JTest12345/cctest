@@ -13,8 +13,10 @@ const STORAGE_KEYS = {
 
 const SCHEMA_VERSION = 2; // 1: 1日1レシピ, 2: 1日複数レシピ
 const IDB_NAME = 'WeekRecipePhotoDB';
-const IDB_VERSION = 1;
+const IDB_VERSION = 2;
 const IDB_STORE = 'photos';
+const IDB_BACKUP_STORE = 'backup';
+const EXPORT_FORMAT_VERSION = 1;
 
 // 写真圧縮設定
 const PHOTO_MAX_DIM = 1024;     // 長辺の最大px
@@ -78,6 +80,9 @@ const PhotoDB = {
         if (!db.objectStoreNames.contains(IDB_STORE)) {
           db.createObjectStore(IDB_STORE, { keyPath: 'id' });
         }
+        if (!db.objectStoreNames.contains(IDB_BACKUP_STORE)) {
+          db.createObjectStore(IDB_BACKUP_STORE, { keyPath: 'id' });
+        }
       };
       req.onsuccess = (e) => {
         state.photoDB = e.target.result;
@@ -121,8 +126,454 @@ const PhotoDB = {
       req.onsuccess = () => resolve(req.result);
       req.onerror = (e) => reject(e.target.error);
     });
+  },
+  async getAll() {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = (e) => reject(e.target.error);
+    });
+  },
+  async clear() {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = (e) => reject(e.target.error);
+    });
   }
 };
+
+// バックアップストア操作
+const BackupDB = {
+  async save(snapshot) {
+    const db = await PhotoDB.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_BACKUP_STORE, 'readwrite');
+      tx.objectStore(IDB_BACKUP_STORE).put({ id: 'last_backup', ...snapshot });
+      tx.oncomplete = () => resolve();
+      tx.onerror = (e) => reject(e.target.error);
+    });
+  },
+  async get() {
+    const db = await PhotoDB.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_BACKUP_STORE, 'readonly');
+      const req = tx.objectStore(IDB_BACKUP_STORE).get('last_backup');
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = (e) => reject(e.target.error);
+    });
+  },
+  async delete() {
+    const db = await PhotoDB.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_BACKUP_STORE, 'readwrite');
+      tx.objectStore(IDB_BACKUP_STORE).delete('last_backup');
+      tx.oncomplete = () => resolve();
+      tx.onerror = (e) => reject(e.target.error);
+    });
+  }
+};
+
+// ===================================================================
+// データ管理（エクスポート / インポート / バックアップ）
+// ===================================================================
+
+// Blob → Base64 dataURL
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Blobの読み取りに失敗しました'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Base64 dataURL → Blob
+function dataURLToBlob(dataURL) {
+  const parts = dataURL.split(',');
+  const mimeMatch = parts[0].match(/data:([^;]+);base64/);
+  const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  const binary = atob(parts[1]);
+  const len = binary.length;
+  const arr = new Uint8Array(len);
+  for (let i = 0; i < len; i++) arr[i] = binary.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+// 容量しきい値（書き出しJSONの推定サイズ基準）
+const SIZE_CAUTION = 30 * 1024 * 1024;  // 30MB：やや大きい
+const SIZE_DANGER = 80 * 1024 * 1024;   // 80MB：失敗リスク大
+// Base64化(+33%) + JSON内エスケープ等の概算係数
+const BASE64_OVERHEAD = 1.37;
+
+// 書き出しサイズを事前推定（重いBase64変換をせずに概算）
+async function estimateExportSize() {
+  let photoBytes = 0;
+  let photoCount = 0;
+  try {
+    const photos = await PhotoDB.getAll();
+    photoCount = photos.length;
+    photos.forEach(p => { if (p && p.blob) photoBytes += p.blob.size; });
+  } catch (e) { /* IndexedDB未対応時は0扱い */ }
+  const textBytes =
+    JSON.stringify(state.recipes).length +
+    JSON.stringify(state.weekPlan).length +
+    JSON.stringify(state.history).length;
+  const estBytes = textBytes + Math.round(photoBytes * BASE64_OVERHEAD);
+  return { estBytes, photoCount, photoBytes, textBytes };
+}
+
+// 全データを集約
+async function buildExportPayload() {
+  const photos = await PhotoDB.getAll();
+  const photosMap = {};
+  for (const p of photos) {
+    if (p && p.id && p.blob) {
+      try {
+        photosMap[p.id] = await blobToDataURL(p.blob);
+      } catch (e) {
+        console.warn('photo skipped:', p.id, e);
+      }
+    }
+  }
+  return {
+    format: 'week-recipe-app',
+    formatVersion: EXPORT_FORMAT_VERSION,
+    exportedAt: new Date().toISOString(),
+    recipes: state.recipes,
+    weekPlan: state.weekPlan,
+    history: state.history,
+    photos: photosMap,
+    sampleDataVersion: window.SAMPLE_DATA_VERSION || 1,
+    schemaVersion: 2
+  };
+}
+
+// エクスポート実行
+async function exportData() {
+  // 事前に容量を推定して警告
+  const { estBytes, photoCount } = await estimateExportSize();
+  if (estBytes >= SIZE_DANGER) {
+    const ok = confirm(
+      `⚠️ 書き出すデータが非常に大きいです（推定 ${formatBytes(estBytes)}・写真${photoCount}枚）。\n\n` +
+      `iPhoneでは書き出しや取り込みに失敗する可能性があります。\n` +
+      `不要な履歴や写真を削除すると安全に転送できます。\n\n` +
+      `このまま続けますか？`
+    );
+    if (!ok) return;
+  } else if (estBytes >= SIZE_CAUTION) {
+    const ok = confirm(
+      `書き出すデータがやや大きめです（推定 ${formatBytes(estBytes)}・写真${photoCount}枚）。\n` +
+      `処理に少し時間がかかる場合があります。\n\n続けますか？`
+    );
+    if (!ok) return;
+  }
+
+  showUploadingOverlay('データを書き出し中...');
+  try {
+    const payload = await buildExportPayload();
+    const json = JSON.stringify(payload);
+    const blob = new Blob([json], { type: 'application/json' });
+    const now = new Date();
+    const filename = `recipe-app-backup-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}.json`;
+    const file = new File([blob], filename, { type: 'application/json' });
+
+    hideUploadingOverlay();
+
+    // Web Share API（iPhone Safari等）で共有シート起動を試行
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'レシピ管理データ' });
+        showToast('共有しました');
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') {
+          // ユーザーがキャンセル → ダウンロードにフォールバック
+        } else {
+          console.warn('share failed, fallback to download', e);
+        }
+      }
+    }
+
+    // フォールバック：通常ダウンロード
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast(`書き出しました（${formatBytes(blob.size)}）`);
+  } catch (err) {
+    hideUploadingOverlay();
+    console.error(err);
+    showToast('書き出しに失敗しました: ' + (err.message || ''));
+  }
+}
+
+// インポート：プレビューデータ
+let pendingImportPayload = null;
+
+async function handleImportFileSelected(e) {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+
+  // 巨大ファイルは解析前に警告（解析中のクラッシュを防ぐ）
+  if (file.size >= SIZE_DANGER) {
+    const ok = confirm(
+      `⚠️ 取り込むファイルが非常に大きいです（${formatBytes(file.size)}）。\n\n` +
+      `iPhoneでは取り込み中にアプリが落ちる可能性があります。\n\n` +
+      `このまま続けますか？`
+    );
+    if (!ok) return;
+  } else if (file.size >= SIZE_CAUTION) {
+    const ok = confirm(
+      `取り込むファイルがやや大きめです（${formatBytes(file.size)}）。\n` +
+      `解析に少し時間がかかる場合があります。\n\n続けますか？`
+    );
+    if (!ok) return;
+  }
+
+  showUploadingOverlay('ファイルを解析中...');
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    // バリデーション
+    if (!payload || payload.format !== 'week-recipe-app') {
+      throw new Error('このアプリのバックアップファイルではありません');
+    }
+    if (typeof payload.formatVersion !== 'number') {
+      throw new Error('ファイル形式が認識できません');
+    }
+    if (payload.formatVersion > EXPORT_FORMAT_VERSION) {
+      throw new Error(`新しいバージョンのファイルです（v${payload.formatVersion}）。アプリを更新してください`);
+    }
+    if (!Array.isArray(payload.recipes) || !payload.weekPlan || !Array.isArray(payload.history)) {
+      throw new Error('ファイル内容が壊れています');
+    }
+    pendingImportPayload = payload;
+    hideUploadingOverlay();
+    showImportPreview(payload, file.size);
+  } catch (err) {
+    hideUploadingOverlay();
+    console.error(err);
+    showToast('読み込み失敗: ' + (err.message || ''));
+  }
+}
+
+function showImportPreview(payload, fileSize) {
+  const content = document.getElementById('importPreviewContent');
+  const photoCount = payload.photos ? Object.keys(payload.photos).length : 0;
+  const planCount = countPlanSlots(payload.weekPlan);
+  const exportedAt = payload.exportedAt ? new Date(payload.exportedAt) : null;
+  const exportedAtStr = exportedAt ? `${exportedAt.getFullYear()}/${exportedAt.getMonth() + 1}/${exportedAt.getDate()} ${String(exportedAt.getHours()).padStart(2, '0')}:${String(exportedAt.getMinutes()).padStart(2, '0')}` : '不明';
+
+  content.innerHTML = `
+    <div class="preview-row title"><span>取り込み元データ</span><span>${exportedAtStr}</span></div>
+    <div class="preview-row"><span>レシピ</span><span>${payload.recipes.length}件</span></div>
+    <div class="preview-row"><span>献立予定</span><span>${planCount}件</span></div>
+    <div class="preview-row"><span>完了履歴</span><span>${payload.history.length}件</span></div>
+    <div class="preview-row"><span>写真</span><span>${photoCount}枚</span></div>
+    <div class="preview-row"><span>ファイルサイズ</span><span>${formatBytes(fileSize)}</span></div>
+    <div class="preview-row title" style="margin-top:10px;"><span>現在のデータ（上書きされます）</span><span></span></div>
+    <div class="preview-row"><span>レシピ</span><span>${state.recipes.length}件</span></div>
+    <div class="preview-row"><span>完了履歴</span><span>${state.history.length}件</span></div>
+  `;
+  showModal('importPreviewModal');
+}
+
+function countPlanSlots(weekPlan) {
+  let n = 0;
+  Object.values(weekPlan || {}).forEach(week => {
+    Object.values(week || {}).forEach(day => {
+      if (Array.isArray(day)) n += day.length;
+    });
+  });
+  return n;
+}
+
+// 自動バックアップを取得
+async function takeAutoBackup() {
+  const photos = await PhotoDB.getAll();
+  await BackupDB.save({
+    savedAt: new Date().toISOString(),
+    recipes: state.recipes,
+    weekPlan: state.weekPlan,
+    history: state.history,
+    photos: photos.map(p => ({ id: p.id, blob: p.blob })),
+    sampleDataVersion: Storage.load(STORAGE_KEYS.sampleDataVersion, 0)
+  });
+}
+
+// インポート実行
+async function executeImport() {
+  if (!pendingImportPayload) return;
+  if (!confirm('現在のデータが全て上書きされます。\n本当に取り込みますか？')) return;
+
+  showUploadingOverlay('バックアップ取得中...');
+  try {
+    // 1. 自動バックアップ
+    await takeAutoBackup();
+
+    showUploadingOverlay('データを書き戻し中...');
+
+    // 2. 既存写真クリア
+    await PhotoDB.clear();
+
+    // 3. 新写真投入
+    const photos = pendingImportPayload.photos || {};
+    for (const [id, dataURL] of Object.entries(photos)) {
+      try {
+        const blob = dataURLToBlob(dataURL);
+        await PhotoDB.save(id, blob);
+      } catch (e) {
+        console.warn('photo restore skipped:', id, e);
+      }
+    }
+
+    // 4. localStorageに書き戻し
+    state.recipes = pendingImportPayload.recipes;
+    state.weekPlan = pendingImportPayload.weekPlan;
+    state.history = pendingImportPayload.history;
+    Storage.save(STORAGE_KEYS.recipes, state.recipes);
+    Storage.save(STORAGE_KEYS.weekPlan, state.weekPlan);
+    Storage.save(STORAGE_KEYS.history, state.history);
+    if (pendingImportPayload.sampleDataVersion) {
+      Storage.save(STORAGE_KEYS.sampleDataVersion, pendingImportPayload.sampleDataVersion);
+    }
+    Storage.save(STORAGE_KEYS.schemaVersion, 2);
+
+    pendingImportPayload = null;
+    hideUploadingOverlay();
+    hideModal('importPreviewModal');
+    renderAll();
+    renderDataTab();
+    showToast('取り込みが完了しました');
+  } catch (err) {
+    hideUploadingOverlay();
+    console.error(err);
+    showToast('取り込みに失敗しました: ' + (err.message || ''));
+  }
+}
+
+// バックアップから復元
+async function restoreFromBackup() {
+  const backup = await BackupDB.get();
+  if (!backup) { showToast('バックアップがありません'); return; }
+
+  const savedAt = new Date(backup.savedAt);
+  const savedAtStr = `${savedAt.getFullYear()}/${savedAt.getMonth() + 1}/${savedAt.getDate()} ${String(savedAt.getHours()).padStart(2, '0')}:${String(savedAt.getMinutes()).padStart(2, '0')}`;
+  if (!confirm(`${savedAtStr} 時点の状態に復元します。\n現在のデータは失われます。よろしいですか？`)) return;
+  if (!confirm('本当に復元しますか？（この操作は取り消せません）')) return;
+
+  showUploadingOverlay('復元中...');
+  try {
+    await PhotoDB.clear();
+    for (const p of (backup.photos || [])) {
+      if (p && p.id && p.blob) {
+        await PhotoDB.save(p.id, p.blob);
+      }
+    }
+    state.recipes = backup.recipes;
+    state.weekPlan = backup.weekPlan;
+    state.history = backup.history;
+    Storage.save(STORAGE_KEYS.recipes, state.recipes);
+    Storage.save(STORAGE_KEYS.weekPlan, state.weekPlan);
+    Storage.save(STORAGE_KEYS.history, state.history);
+    if (backup.sampleDataVersion != null) {
+      Storage.save(STORAGE_KEYS.sampleDataVersion, backup.sampleDataVersion);
+    }
+
+    hideUploadingOverlay();
+    renderAll();
+    renderDataTab();
+    showToast('復元しました');
+  } catch (err) {
+    hideUploadingOverlay();
+    console.error(err);
+    showToast('復元に失敗しました: ' + (err.message || ''));
+  }
+}
+
+// データタブ描画
+async function renderDataTab() {
+  document.getElementById('statRecipeCount').textContent = `${state.recipes.length}件`;
+  document.getElementById('statPlanCount').textContent = `${countPlanSlots(state.weekPlan)}件`;
+  document.getElementById('statHistoryCount').textContent = `${state.history.length}件`;
+
+  try {
+    const photos = await PhotoDB.getAll();
+    let totalPhotoBytes = 0;
+    photos.forEach(p => { if (p && p.blob) totalPhotoBytes += p.blob.size; });
+    document.getElementById('statPhotoCount').textContent = `${photos.length}枚（${formatBytes(totalPhotoBytes)}）`;
+
+    // 端末内の実データ量：localStorage (概算) + 写真
+    const lsBytes =
+      JSON.stringify(state.recipes).length +
+      JSON.stringify(state.weekPlan).length +
+      JSON.stringify(state.history).length;
+    document.getElementById('statTotalSize').textContent = formatBytes(lsBytes + totalPhotoBytes);
+
+    // 書き出し時の推定サイズ（Base64オーバーヘッド込み）でステータス判定
+    const estBytes = lsBytes + Math.round(totalPhotoBytes * BASE64_OVERHEAD);
+    const badge = document.getElementById('exportSizeBadge');
+    if (badge) {
+      if (estBytes >= SIZE_DANGER) {
+        badge.className = 'size-badge danger';
+        badge.textContent = `🔴 書き出し推定 ${formatBytes(estBytes)}・転送に失敗する可能性があります`;
+      } else if (estBytes >= SIZE_CAUTION) {
+        badge.className = 'size-badge caution';
+        badge.textContent = `🟡 書き出し推定 ${formatBytes(estBytes)}・やや大きめです`;
+      } else {
+        badge.className = 'size-badge safe';
+        badge.textContent = `✅ 書き出し推定 ${formatBytes(estBytes)}・安全な容量です`;
+      }
+    }
+  } catch (e) {
+    document.getElementById('statPhotoCount').textContent = '取得失敗';
+    document.getElementById('statTotalSize').textContent = '-';
+  }
+
+  // バックアップ情報
+  try {
+    const backup = await BackupDB.get();
+    const restoreBtn = document.getElementById('restoreBackupBtn');
+    const infoEl = document.getElementById('backupInfoText');
+    if (backup && backup.savedAt) {
+      const d = new Date(backup.savedAt);
+      const dateStr = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      infoEl.textContent = `${dateStr} に取得したバックアップに戻します（写真${(backup.photos || []).length}枚 / 履歴${(backup.history || []).length}件）`;
+      restoreBtn.disabled = false;
+      restoreBtn.style.opacity = '1';
+    } else {
+      infoEl.textContent = 'バックアップはまだありません';
+      restoreBtn.disabled = true;
+      restoreBtn.style.opacity = '0.5';
+    }
+  } catch (e) {}
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+  return `${(bytes / 1024 / 1024).toFixed(2)}MB`;
+}
+
+function bindDataHandlers() {
+  document.getElementById('exportDataBtn').addEventListener('click', exportData);
+  document.getElementById('importDataBtn').addEventListener('click', () => {
+    document.getElementById('importFileInput').click();
+  });
+  document.getElementById('importFileInput').addEventListener('change', handleImportFileSelected);
+  document.getElementById('confirmImportBtn').addEventListener('click', executeImport);
+  document.getElementById('restoreBackupBtn').addEventListener('click', restoreFromBackup);
+}
 
 // ===================================================================
 // 写真圧縮
@@ -175,6 +626,7 @@ function init() {
 
   bindHistoryControls();
   bindPhotoHandlers();
+  bindDataHandlers();
 
   renderAll();
   registerServiceWorker();
@@ -339,6 +791,7 @@ function switchTab(tab) {
   if (tab === 'week') renderWeek();
   else if (tab === 'recipes') renderRecipeList();
   else if (tab === 'history') renderHistory();
+  else if (tab === 'data') renderDataTab();
 }
 
 // ===================================================================
@@ -413,11 +866,7 @@ function renderWeek() {
       slots.forEach(slot => {
         const recipe = state.recipes.find(r => r.id === slot.recipeId);
         const recipeName = recipe ? recipe.name : '（削除されたレシピ）';
-        const total = recipe ? recipe.ingredients.length : 0;
-        const checkedCount = (slot.checked || []).length;
-        const metaText = slot.completed
-          ? '✓ 完了'
-          : (total > 0 ? `材料 ${checkedCount}/${total}` : '');
+        const metaText = slot.completed ? '✓ 完了' : '未調理';
         const slotEl = document.createElement('div');
         slotEl.className = 'recipe-slot' + (slot.completed ? ' completed' : '');
         slotEl.innerHTML = `
@@ -527,59 +976,39 @@ function openCookModal(weekKey, dayKey, slotId) {
   showModal('cookModal');
 }
 
-function renderCookIngredients(recipe, entry) {
+function renderCookIngredients(recipe, slot) {
   const ul = document.getElementById('cookIngredients');
   ul.innerHTML = '';
-  // 表示にはサービング情報も
   const servingsLabel = recipe.servings ? `（${recipe.servings}人前）` : '';
   document.getElementById('cookRecipeName').textContent = recipe.name + servingsLabel;
 
+  // ステータス表示
+  const statusEl = document.getElementById('cookStatusText');
+  if (slot.completed) {
+    statusEl.textContent = `✓ 完了済み（${formatCompletedAt(slot.completedAt)}）`;
+    statusEl.classList.add('completed');
+  } else {
+    statusEl.textContent = '材料を確認して、調理後に「料理完了」を押してください';
+    statusEl.classList.remove('completed');
+  }
+
+  // 材料リスト（チェックなし、表示専用）
   recipe.ingredients.forEach(ing => {
-    const ingKey = getIngredientName(ing);
-    const checked = (entry.checked || []).includes(ingKey);
+    const ingName = getIngredientName(ing);
     const amount = getIngredientAmount(ing);
     const li = document.createElement('li');
-    if (checked) li.classList.add('checked');
     li.innerHTML = `
-      <div class="ing-checkbox"></div>
-      <div class="ing-name">${escapeHtml(ingKey)}</div>
+      <div class="ing-bullet"></div>
+      <div class="ing-name">${escapeHtml(ingName)}</div>
       ${amount ? `<div class="ing-amount">${escapeHtml(amount)}</div>` : ''}
     `;
-    li.addEventListener('click', () => toggleIngredient(ingKey));
     ul.appendChild(li);
   });
-  updateCookProgress(recipe, entry);
-}
 
-function toggleIngredient(ingKey) {
-  const slot = getCurrentSlot();
-  if (!slot) return;
-  if (slot.completed) {
-    showToast('完了済みです');
-    return;
-  }
-  if (!slot.checked) slot.checked = [];
-  const idx = slot.checked.indexOf(ingKey);
-  if (idx >= 0) slot.checked.splice(idx, 1);
-  else slot.checked.push(ingKey);
-  Storage.save(STORAGE_KEYS.weekPlan, state.weekPlan);
-  const recipe = state.recipes.find(r => r.id === slot.recipeId);
-  renderCookIngredients(recipe, slot);
-}
-
-function updateCookProgress(recipe, slot) {
-  const total = recipe.ingredients.length;
-  const checked = (slot.checked || []).length;
-  const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
-  document.getElementById('cookProgress').style.width = `${pct}%`;
-  document.getElementById('cookProgressText').textContent =
-    slot.completed ? `✓ 完了済み（${formatCompletedAt(slot.completedAt)}）` : `${checked} / ${total} 個使用`;
-
+  // 完了ボタン制御
   const btn = document.getElementById('completeCookBtn');
-  btn.disabled = slot.completed || checked < total;
-  btn.textContent = slot.completed
-    ? '完了済み'
-    : (checked < total ? `すべて使用 → 完了（あと${total - checked}個）` : 'すべて使用 → 完了');
+  btn.disabled = !!slot.completed;
+  btn.textContent = slot.completed ? '完了済み' : '✓ 料理完了（履歴に追加）';
 }
 
 function formatCompletedAt(iso) {
@@ -593,7 +1022,7 @@ function completeCooking() {
   if (!slot) return;
   const recipe = state.recipes.find(r => r.id === slot.recipeId);
   if (!recipe) return;
-  if ((slot.checked || []).length < recipe.ingredients.length) return;
+  if (slot.completed) return;
 
   slot.completed = true;
   slot.completedAt = new Date().toISOString();
@@ -986,12 +1415,18 @@ async function deleteCurrentPhoto() {
   showToast('写真を削除しました');
 }
 
-function showUploadingOverlay() {
-  if (document.getElementById('uploadingOverlay')) return;
-  const el = document.createElement('div');
+function showUploadingOverlay(msg) {
+  const text = msg || '写真を保存中...';
+  let el = document.getElementById('uploadingOverlay');
+  if (el) {
+    const textEl = el.querySelector('.uploading-text');
+    if (textEl) textEl.textContent = text;
+    return;
+  }
+  el = document.createElement('div');
   el.id = 'uploadingOverlay';
   el.className = 'uploading-overlay';
-  el.innerHTML = `<div class="uploading-spinner"><div class="spinner-dot"></div><div>写真を保存中...</div></div>`;
+  el.innerHTML = `<div class="uploading-spinner"><div class="spinner-dot"></div><div class="uploading-text">${escapeHtml(text)}</div></div>`;
   document.body.appendChild(el);
 }
 
