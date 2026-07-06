@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#4a7c59">
+  <meta name="theme-color" content="#4a7c59" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1a18" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="週レシピ">
@@ -18,11 +19,18 @@
     <h1>🍳 週レシピ</h1>
   </header>
 
+  <div id="installBanner" class="install-banner hidden">
+    <div class="install-banner-text">📲 Safariの共有ボタン →「ホーム画面に追加」でアプリとして使えます</div>
+    <button id="installBannerClose" class="install-banner-close" aria-label="閉じる">✕</button>
+  </div>
+
   <nav class="tab-nav">
-    <button class="tab-btn active" data-tab="week">献立</button>
-    <button class="tab-btn" data-tab="recipes">レシピ</button>
-    <button class="tab-btn" data-tab="history">履歴</button>
-    <button class="tab-btn" data-tab="data">📦 データ</button>
+    <button class="tab-btn active" data-tab="week"><span class="tab-icon">📅</span><span class="tab-label">献立</span></button>
+    <button class="tab-btn" data-tab="recipes"><span class="tab-icon">📖</span><span class="tab-label">レシピ</span></button>
+    <button class="tab-btn" data-tab="history"><span class="tab-icon">🍽️</span><span class="tab-label">履歴</span></button>
+    <button class="tab-btn" data-tab="records"><span class="tab-icon">🧾</span><span class="tab-label">記録</span></button>
+    <button class="tab-btn" data-tab="stats"><span class="tab-icon">📊</span><span class="tab-label">分析</span></button>
+    <button class="tab-btn" data-tab="data"><span class="tab-icon">💾</span><span class="tab-label">データ</span></button>
   </nav>
 
   <main class="content">
@@ -30,8 +38,19 @@
     <section id="tab-week" class="tab-panel active">
       <div class="week-header">
         <button id="prevWeek" class="week-nav-btn">‹</button>
-        <div id="weekLabel" class="week-label"></div>
+        <div class="week-label-wrap">
+          <div id="weekLabel" class="week-label"></div>
+          <button id="todayBtn" class="today-btn hidden">今日の週に戻る</button>
+        </div>
         <button id="nextWeek" class="week-nav-btn">›</button>
+      </div>
+      <div class="week-toolbar">
+        <button id="suggestBtn" class="tool-btn primary">🍱 自動提案</button>
+        <button id="reorderWeekBtn" class="tool-btn">🧊 期限順に並べ替え</button>
+        <button id="shoppingListBtn" class="tool-btn">🛒 買い物リスト</button>
+        <button id="copyLastWeekBtn" class="tool-btn">📋 先週をコピー</button>
+        <button id="templateBtn" class="tool-btn">⭐ テンプレート</button>
+        <button id="clearWeekBtn" class="tool-btn danger">🗑 週クリア</button>
       </div>
       <div id="weekContainer" class="week-container"></div>
     </section>
@@ -47,9 +66,74 @@
         <button class="cat-btn" data-cat="和食">和食</button>
         <button class="cat-btn" data-cat="洋食">洋食</button>
         <button class="cat-btn" data-cat="中華">中華</button>
+        <button class="cat-btn" data-cat="エスニック">エスニック</button>
         <button class="cat-btn" data-cat="その他">その他</button>
       </div>
+      <div class="recipe-sort-row">
+        <button id="recipeSortToggle" class="sort-toggle" data-mode="name">並び替え：名前順</button>
+      </div>
       <div id="recipeList" class="recipe-list"></div>
+    </section>
+
+    <!-- 買い物・食費 記録タブ -->
+    <section id="tab-records" class="tab-panel">
+      <div class="history-header">
+        <h2 class="section-title">🧾 買い物・食費</h2>
+        <button id="addPurchaseBtn" class="primary-btn small">＋ 記録</button>
+      </div>
+      <div class="month-summary">
+        <div class="month-nav">
+          <button id="prevMonth" class="week-nav-btn">‹</button>
+          <div id="monthLabel" class="week-label"></div>
+          <button id="nextMonth" class="week-nav-btn">›</button>
+        </div>
+        <div class="month-total">
+          <span>この月の食費</span>
+          <span id="monthTotal" class="month-total-value">¥0</span>
+        </div>
+        <div id="monthStoreSummary" class="month-store-summary"></div>
+      </div>
+      <div id="purchaseList" class="purchase-list"></div>
+    </section>
+
+    <!-- 分析タブ -->
+    <section id="tab-stats" class="tab-panel">
+      <h2 class="section-title">📊 分析</h2>
+      <div id="statsWeekCards" class="stats-cards"></div>
+
+      <div class="chart-card">
+        <div class="chart-title">週別の調理回数（直近8週）</div>
+        <div id="chartWeekly" class="chart-wrap"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title-row">
+          <div class="chart-title">カテゴリ構成</div>
+          <div class="chart-period-toggle">
+            <button class="period-btn active" data-period="30">直近30日</button>
+            <button class="period-btn" data-period="all">全期間</button>
+          </div>
+        </div>
+        <div id="chartCategory" class="chart-wrap donut-area"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">月別の食費（直近6ヶ月）</div>
+        <div id="chartMoney" class="chart-wrap"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">🏆 よく作る料理 TOP5</div>
+        <div id="rankOften" class="rank-list"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">⭐ 高評価の料理 TOP5</div>
+        <div id="rankRated" class="rank-list"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">💤 ご無沙汰の料理（前回調理が古い順）</div>
+        <div id="rankStale" class="rank-list"></div>
+      </div>
     </section>
 
     <!-- データ管理タブ -->
@@ -117,11 +201,14 @@
         <h2 class="modal-title">取り込みデータの確認</h2>
         <div id="importPreviewContent" class="import-preview-content"></div>
         <div class="warning-box">
-          ⚠️ 取り込むと現在のデータは全て上書きされます。<br>
-          取り込み直前の状態は自動バックアップされ、「復元」から戻せます。
+          <b>🔀 マージ</b>：両端末のデータを統合します（履歴・写真・記録は合算、レシピは新しい編集を採用）。夫婦での送り合いに推奨。<br>
+          <b>⚠️ 上書き</b>：現在のデータを全て消してファイルの内容に置き換えます。<br>
+          どちらの場合も直前の状態が自動バックアップされ、「復元」から戻せます。<br>
+          <span style="opacity:0.8;">※マージでは「削除」は伝わりません（片方で消したものが戻ることがあります）</span>
         </div>
         <div class="modal-actions">
-          <button id="confirmImportBtn" class="danger-btn full-width">上書きして取り込む</button>
+          <button id="confirmMergeBtn" class="primary-btn full-width">🔀 マージして取り込む（推奨）</button>
+          <button id="confirmImportBtn" class="danger-btn full-width">⚠️ 全て上書きして取り込む</button>
           <button class="primary-btn full-width" data-close="importPreviewModal" style="background:#888;">キャンセル</button>
         </div>
       </div>
@@ -143,8 +230,18 @@
       <button class="modal-close" data-close="cookModal">✕</button>
       <h2 id="cookRecipeName" class="modal-title"></h2>
       <div id="cookStatusText" class="cook-status-text"></div>
-      <h3 class="ingredient-section-title">材料</h3>
+      <div class="rating-row">
+        <span class="rating-label">この料理の評価</span>
+        <div id="cookStars" class="stars"></div>
+      </div>
+      <div id="cookShelfSummary" class="cook-shelf-summary"></div>
+      <h3 class="ingredient-section-title">材料と使用期限の目安</h3>
       <ul id="cookIngredients" class="ingredient-list"></ul>
+      <div id="cookNoteWrap" class="cook-note hidden">
+        <h3 class="ingredient-section-title">メモ</h3>
+        <div id="cookNote" class="cook-note-text"></div>
+      </div>
+      <a id="cookUrlLink" class="cook-url-link hidden" target="_blank" rel="noopener noreferrer">🔗 参考レシピページを開く</a>
       <div class="modal-actions">
         <button id="completeCookBtn" class="primary-btn full-width">✓ 料理完了（履歴に追加）</button>
         <button id="removeFromWeekBtn" class="danger-btn full-width">この料理を削除</button>
@@ -158,6 +255,7 @@
       <button class="modal-close" data-close="selectRecipeModal">✕</button>
       <h2 class="modal-title" id="selectModalTitle">料理を選ぶ</h2>
       <input type="text" id="selectSearch" placeholder="🔍 検索" class="search-input">
+      <div id="selectSuggestions" class="select-suggestions"></div>
       <div id="selectRecipeList" class="recipe-list compact"></div>
     </div>
   </div>
@@ -182,8 +280,17 @@
       <label class="form-label">何人前
         <input type="number" id="editServings" class="form-input" min="1" max="20" value="2">
       </label>
+      <label class="form-label">評価
+        <div id="editStars" class="stars"></div>
+      </label>
       <label class="form-label">材料（1行ずつ、「材料名, 分量」形式）
         <textarea id="editIngredients" class="form-input" rows="10" placeholder="例:&#10;玉ねぎ, 1個&#10;人参, 100g&#10;じゃがいも, 中2個（300g）&#10;&#10;※分量は省略可。カンマで区切ります"></textarea>
+      </label>
+      <label class="form-label">メモ（コツ・覚え書き / 任意）
+        <textarea id="editNote" class="form-input" rows="2" placeholder="例：豚肉は片栗粉をまぶすと柔らかくなる"></textarea>
+      </label>
+      <label class="form-label">参考URL（任意）
+        <input type="url" id="editUrl" class="form-input" placeholder="https://cookpad.com/...">
       </label>
       <div class="modal-actions">
         <button id="saveRecipeBtn" class="primary-btn full-width">保存</button>
@@ -219,6 +326,133 @@
       <div class="modal-actions">
         <button id="photoReplaceBtn" class="primary-btn full-width">写真を差し替え</button>
         <button id="photoDeleteBtn" class="danger-btn full-width">写真を削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 買い物リストモーダル -->
+  <div id="shoppingModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="shoppingModal">✕</button>
+      <h2 class="modal-title">🛒 買い物リスト</h2>
+      <div id="shoppingWeekLabel" class="shopping-week-label"></div>
+      <div class="shopping-options">
+        <label class="toggle-label"><input type="checkbox" id="excludeStaplesToggle"> 常備品（調味料など）を除く</label>
+        <label class="toggle-label"><input type="checkbox" id="excludeCompletedToggle"> 完了した料理を除く</label>
+      </div>
+      <div id="shoppingListContent" class="shopping-list-content"></div>
+      <div class="shopping-add-row">
+        <input type="text" id="shoppingAddInput" class="form-input" placeholder="手動で品目を追加（例：牛乳）">
+        <button id="shoppingAddBtn" class="primary-btn">追加</button>
+      </div>
+      <div class="modal-actions">
+        <button id="shoppingShareBtn" class="primary-btn full-width">📤 リストを共有（テキスト）</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 献立テンプレートモーダル -->
+  <div id="templateModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="templateModal">✕</button>
+      <h2 class="modal-title">⭐ 献立テンプレート</h2>
+      <p class="modal-hint">よく作る一週間の組み合わせを保存して、ワンタップで呼び出せます。</p>
+      <div class="template-save-row">
+        <input type="text" id="templateNameInput" class="form-input" placeholder="今週をテンプレートとして保存（名前）">
+        <button id="saveTemplateBtn" class="primary-btn">保存</button>
+      </div>
+      <h3 class="ingredient-section-title">保存済みテンプレート</h3>
+      <div id="templateList" class="template-list"></div>
+    </div>
+  </div>
+
+  <!-- 自動献立提案モーダル -->
+  <div id="suggestModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="suggestModal">✕</button>
+      <h2 class="modal-title">🍱 自動で献立を提案</h2>
+      <p class="modal-hint">栄養バランス（たんぱく源のローテーション・野菜・揚げ物ひかえめ）と、食材の賞味期限（傷みやすい料理を前半に）を考えて献立を提案します。土曜まとめ買い→平日調理を想定しています。</p>
+      <div class="suggest-days-toggle">
+        <button class="sdays-btn active" data-days="5" type="button">月〜金（5日）</button>
+        <button class="sdays-btn" data-days="7" type="button">月〜日（7日）</button>
+      </div>
+      <button id="generateSuggestBtn" class="primary-btn full-width">✨ 提案する</button>
+      <div id="suggestResult" class="suggest-result"></div>
+      <div id="suggestActions" class="modal-actions hidden">
+        <button id="regenSuggestBtn" class="tool-btn" style="width:100%;padding:12px;">🔄 別の案を出す</button>
+        <button id="applySuggestThisBtn" class="primary-btn full-width">表示中の週（<span id="applyThisLabel"></span>）に反映</button>
+        <button id="applySuggestNextBtn" class="primary-btn full-width">翌週（<span id="applyNextLabel"></span>）に反映</button>
+      </div>
+      <p class="modal-hint" style="margin-top:12px;font-size:0.74rem;">※カロリーやPFCの精密計算ではなく、材料から推定して「栄養の偏りを抑える」提案です。</p>
+    </div>
+  </div>
+
+  <!-- 買い物記録 編集モーダル -->
+  <div id="purchaseModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="purchaseModal">✕</button>
+      <h2 class="modal-title" id="purchaseModalTitle">買い物の記録</h2>
+      <label class="form-label">日付
+        <input type="date" id="purchaseDate" class="form-input">
+      </label>
+      <label class="form-label">店名
+        <input type="text" id="purchaseStore" class="form-input" placeholder="例：○○スーパー △△店">
+      </label>
+
+      <div class="receipt-photo-area">
+        <div id="receiptPhotoPreview" class="receipt-photo-preview"></div>
+        <button id="receiptPhotoBtn" class="primary-btn small">📷 レシート写真</button>
+      </div>
+
+      <label class="form-label">レシートのライブテキストを貼り付け（任意）
+        <textarea id="receiptPasteArea" class="form-input" rows="4" placeholder="iPhoneの「ライブテキスト」でレシートの文字をコピー → ここに貼り付け → 下の「解析」を押すと明細に自動反映します（要確認）"></textarea>
+      </label>
+      <button id="parseReceiptBtn" class="primary-btn small full-width">▼ 貼り付けた文字を解析して明細に反映</button>
+
+      <h3 class="ingredient-section-title">明細</h3>
+      <div class="purchase-items-header">
+        <span class="pih-name">品名</span>
+        <span class="pih-qty">個数</span>
+        <span class="pih-price">金額</span>
+        <span class="pih-del"></span>
+      </div>
+      <div id="purchaseItems" class="purchase-items"></div>
+      <button id="addItemRowBtn" class="add-recipe-btn">＋ 品目を追加</button>
+
+      <div class="purchase-total-row">
+        <span>合計</span>
+        <span id="purchaseTotalDisplay">¥0</span>
+      </div>
+      <label class="form-label">メモ（任意）
+        <input type="text" id="purchaseNote" class="form-input">
+      </label>
+
+      <div class="modal-actions">
+        <button id="savePurchaseBtn" class="primary-btn full-width">保存</button>
+        <button id="deletePurchaseBtn" class="danger-btn full-width hidden">この記録を削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 「また作る」曜日選択モーダル -->
+  <div id="dayPickerModal" class="modal hidden">
+    <div class="modal-content small">
+      <button class="modal-close" data-close="dayPickerModal">✕</button>
+      <h2 class="modal-title" id="dayPickerTitle">いつ作りますか？</h2>
+      <h3 class="ingredient-section-title">今週</h3>
+      <div id="dayPickerThisWeek" class="day-picker-row"></div>
+      <h3 class="ingredient-section-title">来週</h3>
+      <div id="dayPickerNextWeek" class="day-picker-row"></div>
+    </div>
+  </div>
+
+  <!-- 写真拡大表示（レシート兼用） -->
+  <div id="receiptViewModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="receiptViewModal">✕</button>
+      <h2 class="modal-title">レシート写真</h2>
+      <div class="photo-view-wrap">
+        <img id="receiptViewImg" alt="レシート写真">
       </div>
     </div>
   </div>
