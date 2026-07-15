@@ -235,6 +235,37 @@ input, textarea, select { font-family: inherit; font-size: 16px; color: var(--te
   border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600;
 }
 .sdays-btn.active { background: var(--btn-accent); color: #fff; border-color: var(--btn-accent); }
+.suggest-field-label { font-size: 0.78rem; color: var(--text-sub); font-weight: 600; margin-bottom: 6px; }
+.season-toggle { display: flex; gap: 5px; margin-bottom: 12px; }
+.season-btn {
+  flex: 1; padding: 8px 0; border-radius: 10px;
+  background: var(--chip-bg); color: var(--text-mid);
+  border: 1px solid var(--border); font-size: 0.82rem; font-weight: 600;
+}
+.season-btn.active { background: var(--btn-accent); color: #fff; border-color: var(--btn-accent); }
+.suggest-options {
+  display: flex; gap: 16px; margin-bottom: 12px;
+  background: var(--chip-bg); padding: 10px 12px; border-radius: 8px;
+}
+.suggest-options .toggle-label { font-size: 0.88rem; }
+.role-badge.role-soup { background: #6b8caf; color: #fff; }
+
+/* レシピ選択モーダルのジャンル絞り込み */
+.select-role-filter { display: flex; gap: 5px; margin-bottom: 10px; }
+.srole-btn {
+  flex: 1; padding: 8px 0; border-radius: 10px;
+  background: var(--chip-bg); color: var(--text-mid);
+  border: 1px solid var(--border); font-size: 0.84rem; font-weight: 600;
+}
+.srole-btn.active { background: var(--btn-accent); color: #fff; border-color: var(--btn-accent); }
+.recipe-list.compact .recipe-card-name { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.role-hint { font-size: 0.78rem; color: var(--accent); margin-top: 4px; font-weight: 600; }
+.edit-toggle { margin: -4px 0 12px; font-size: 0.9rem; }
+.excl-badge {
+  display: inline-block; font-size: 0.68rem; font-weight: 700;
+  padding: 1px 8px; border-radius: 8px; margin-left: 4px;
+  background: var(--caution-bg); color: var(--caution-text);
+}
 .suggest-result { margin-top: 14px; }
 .suggest-result:empty { display: none; }
 .nutri-summary {

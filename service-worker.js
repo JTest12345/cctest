@@ -1,5 +1,5 @@
 // オフライン動作用のシンプルなキャッシュファースト戦略
-const CACHE_NAME = 'week-recipe-v11';
+const CACHE_NAME = 'week-recipe-v15';
 const ASSETS = [
   './',
   './index.html',

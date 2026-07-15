@@ -821,6 +821,9 @@ function init() {
   bindSuggestHandlers();
 
   state.recordsMonth = firstOfMonth(new Date());
+  if (state.suggestWithSub === undefined) state.suggestWithSub = true;
+  if (state.suggestWithSoup === undefined) state.suggestWithSoup = false;
+  if (!state.suggestSeason) state.suggestSeason = 'auto';
 
   renderAll();
   registerServiceWorker();
@@ -1162,7 +1165,7 @@ function renderWeek() {
         let roleHtml = '';
         if (recipe) {
           const role = dishRole(recipe);
-          roleHtml = `<span class="role-badge role-${role}">${role === 'main' ? '主菜' : '副菜'}</span>`;
+          roleHtml = `<span class="role-badge role-${role}">${ROLE_LABEL[role] || '主菜'}</span>`;
         }
         // 使用期限（購入した土曜基準）
         let shelfHtml = '';
@@ -1197,7 +1200,10 @@ function renderWeek() {
 // ===================================================================
 function openSelectRecipeModal(weekKey, dayKey) {
   state.selectModalTargetDay = { weekKey, dayKey };
+  state.selectRoleFilter = state.selectRoleFilter || 'all';
   document.getElementById('selectSearch').value = '';
+  document.querySelectorAll('.srole-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.role === state.selectRoleFilter));
   renderSelectSuggestions();
   renderSelectRecipeList('');
   showModal('selectRecipeModal');
@@ -1212,7 +1218,7 @@ function renderSelectSuggestions() {
 
   const lastCookedMap = buildLastCookedMap();
   const top = state.recipes
-    .slice()
+    .filter(r => !r.excludeFromSuggest)
     .sort((a, b) => suggestionScore(b, lastCookedMap) - suggestionScore(a, lastCookedMap))
     .slice(0, 6);
   if (top.length === 0) return;
@@ -1242,10 +1248,12 @@ function renderSelectRecipeList(query) {
   list.innerHTML = '';
   const q = (query || '').trim();
   const nq = normalizeKana(q);
-  // 検索中はおすすめを隠す
+  const roleFilter = state.selectRoleFilter || 'all';
+  // 検索中・ジャンル絞り込み中はおすすめを隠す
   const sug = document.getElementById('selectSuggestions');
-  if (sug) sug.style.display = q ? 'none' : '';
+  if (sug) sug.style.display = (q || roleFilter !== 'all') ? 'none' : '';
   const filtered = state.recipes
+    .filter(r => roleFilter === 'all' || dishRole(r) === roleFilter)
     .filter(r => !q || matchesQuery(r.name, nq) || r.ingredients.some(i => searchIngredient(i, q)))
     .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
 
@@ -1255,10 +1263,12 @@ function renderSelectRecipeList(query) {
   }
 
   filtered.forEach(r => {
+    const role = dishRole(r);
     const card = document.createElement('div');
     card.className = 'recipe-card';
     card.innerHTML = `
       <div class="recipe-card-name">
+        <span class="role-badge role-${role}">${ROLE_LABEL[role]}</span>
         <span class="recipe-card-cat">${escapeHtml(r.category)}</span>
         ${escapeHtml(r.name)}
       </div>
@@ -1467,8 +1477,20 @@ function removeFromWeek() {
 function bindRecipeManagement() {
   document.getElementById('recipeSearch').addEventListener('input', () => renderRecipeList());
   document.getElementById('selectSearch').addEventListener('input', (e) => renderSelectRecipeList(e.target.value));
+  document.querySelectorAll('.srole-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.srole-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.selectRoleFilter = btn.dataset.role;
+      renderSelectRecipeList(document.getElementById('selectSearch').value);
+    });
+  });
   document.getElementById('addRecipeBtn').addEventListener('click', () => openEditRecipeModal(null));
   document.getElementById('saveRecipeBtn').addEventListener('click', saveRecipeFromForm);
+  document.getElementById('editRole').addEventListener('change', updateEditRoleHint);
+  document.getElementById('editName').addEventListener('input', updateEditRoleHint);
+  document.getElementById('editCategory').addEventListener('change', updateEditRoleHint);
+  document.getElementById('editIngredients').addEventListener('input', updateEditRoleHint);
   document.getElementById('deleteRecipeBtn').addEventListener('click', deleteCurrentRecipe);
 
   document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -1523,13 +1545,16 @@ function renderRecipeList() {
       ? `<span class="stars small readonly">${[1,2,3,4,5].map(n => `<span class="star ${n <= rating ? 'filled' : ''}">★</span>`).join('')}</span>`
       : '';
     const lastCookedHtml = lastCookedLabel(r.id, lastCookedMap);
+    const role = dishRole(r);
+    const exclBadge = r.excludeFromSuggest ? '<span class="excl-badge">提案対象外</span>' : '';
     card.innerHTML = `
       <div class="recipe-card-name">${escapeHtml(r.name)}</div>
       <div class="recipe-card-meta">
+        <span class="role-badge role-${role}">${ROLE_LABEL[role]}</span>
         <span class="recipe-card-cat">${escapeHtml(r.category)}</span>
         材料 ${r.ingredients.length}個
       </div>
-      <div class="recipe-card-rating">${starsHtml}<span class="recipe-card-lastcooked ${lastCookedHtml.never ? 'never' : ''}">${lastCookedHtml.text}</span></div>
+      <div class="recipe-card-rating">${starsHtml}<span class="recipe-card-lastcooked ${lastCookedHtml.never ? 'never' : ''}">${lastCookedHtml.text}</span>${exclBadge}</div>
     `;
     card.addEventListener('click', () => openEditRecipeModal(r.id));
     list.appendChild(card);
@@ -1590,6 +1615,8 @@ function openEditRecipeModal(recipeId) {
     document.getElementById('editIngredients').value = lines.join('\n');
     document.getElementById('editNote').value = r.note || '';
     document.getElementById('editUrl').value = r.url || '';
+    document.getElementById('editRole').value = r.role || 'auto';
+    document.getElementById('editIncludeSuggest').checked = !r.excludeFromSuggest;
     deleteBtn.classList.remove('hidden');
   } else {
     document.getElementById('editModalTitle').textContent = '新規レシピ';
@@ -1599,6 +1626,8 @@ function openEditRecipeModal(recipeId) {
     document.getElementById('editIngredients').value = '';
     document.getElementById('editNote').value = '';
     document.getElementById('editUrl').value = '';
+    document.getElementById('editRole').value = 'auto';
+    document.getElementById('editIncludeSuggest').checked = true;
     state.editingRating = 0;
     deleteBtn.classList.add('hidden');
   }
@@ -1608,7 +1637,32 @@ function openEditRecipeModal(recipeId) {
     renderStars(editStarsEl, v, onSetEditRating);
   };
   renderStars(editStarsEl, state.editingRating, onSetEditRating);
+  updateEditRoleHint();
   showModal('editRecipeModal');
+}
+
+// レシピ編集フォームの現在の入力から材料配列を作る
+function parseIngredientsFromForm() {
+  return document.getElementById('editIngredients').value.split('\n')
+    .map(s => s.trim()).filter(Boolean)
+    .map(line => {
+      const i = line.search(/[,、]/);
+      return i > 0 ? { name: line.slice(0, i).trim(), amount: line.slice(i + 1).trim() } : { name: line, amount: '' };
+    });
+}
+
+// ジャンルが「自動判定」のとき、推定結果をヒント表示
+function updateEditRoleHint() {
+  const sel = document.getElementById('editRole').value;
+  const hint = document.getElementById('editRoleHint');
+  if (!hint) return;
+  if (sel !== 'auto') { hint.textContent = ''; return; }
+  const temp = {
+    name: document.getElementById('editName').value.trim(),
+    category: document.getElementById('editCategory').value,
+    ingredients: parseIngredientsFromForm()
+  };
+  hint.textContent = `→ 自動判定：${ROLE_LABEL[autoDishRole(temp)] || '主菜'}`;
 }
 
 // 星評価を描画。onSet(value) を渡すとクリック可能
@@ -1657,6 +1711,8 @@ function saveRecipeFromForm() {
   const rating = state.editingRating || 0;
   const note = document.getElementById('editNote').value.trim();
   const url = document.getElementById('editUrl').value.trim();
+  const role = document.getElementById('editRole').value;  // 'auto' | 'main' | 'sub' | 'soup'
+  const excludeFromSuggest = !document.getElementById('editIncludeSuggest').checked;
   const updatedAt = new Date().toISOString(); // マージ時の新旧判定用
   if (state.currentEditingRecipeId) {
     const r = state.recipes.find(x => x.id === state.currentEditingRecipeId);
@@ -1668,12 +1724,14 @@ function saveRecipeFromForm() {
       r.rating = rating;
       r.note = note;
       r.url = url;
+      r.role = role;
+      r.excludeFromSuggest = excludeFromSuggest;
       r.updatedAt = updatedAt;
     }
   } else {
     state.recipes.push({
       id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      name, category, servings, ingredients, rating, note, url, updatedAt
+      name, category, servings, ingredients, rating, note, url, role, excludeFromSuggest, updatedAt
     });
   }
   Storage.save(STORAGE_KEYS.recipes, state.recipes);
@@ -3064,17 +3122,91 @@ function shelfClassOf(days) {
   return 'ok';
 }
 
-// ---- 主菜（メイン）/ 副菜（サブ）の判定 ----
-const SUB_NAME_RE = /サラダ|和え|おひたし|お浸し|ナムル|マリネ|ピクルス|漬|冷奴|冷や奴|酢の物|白和え|きんぴら|煮浸し|浅漬|ぬた|おかか|カプレーゼ/;
-const SOUP_NAME_RE = /味噌汁|みそ汁|スープ|汁|チャウダー|ポタージュ|ミネストローネ/;
-// 'main' | 'sub'
-function dishRole(recipe) {
+// ---- 季節・温度感の判定 ----
+const NABE_RE = /鍋|おでん|すき焼き|しゃぶ|水炊き|寄せ|チゲ|湯豆腐|石狩/;   // 熱々の鍋物（夏は避ける）
+const HOT_RE = /シチュー|グラタン|ドリア|ポトフ|煮込み|あんかけ/;           // 温かい煮込み系
+const COOL_RE = /冷奴|冷や奴|そうめん|冷やし|冷し|冷製|ガスパチョ|カプレーゼ|酢の物|冷しゃぶ|ざる/;
+function warmthOf(recipe) {
   const nm = recipe.name || '';
-  if (SUB_NAME_RE.test(nm) || SOUP_NAME_RE.test(nm)) return 'sub';
+  if (NABE_RE.test(nm)) return 'nabe';
+  if (HOT_RE.test(nm)) return 'hot';
+  if (COOL_RE.test(nm)) return 'cool';
+  return 'any';
+}
+const SEASON_LABEL = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' };
+function currentSeason() {
+  const m = new Date().getMonth() + 1;
+  if (m >= 6 && m <= 8) return 'summer';
+  if (m === 12 || m <= 2) return 'winter';
+  if (m >= 3 && m <= 5) return 'spring';
+  return 'autumn';
+}
+function resolveSeason() {
+  const s = state.suggestSeason || 'auto';
+  return s === 'auto' ? currentSeason() : s;
+}
+// 夏は鍋物を除外（ハード除外）
+function seasonAllows(recipe, season) {
+  if (season === 'summer' && warmthOf(recipe) === 'nabe') return false;
+  return true;
+}
+// 季節スコア（提案時の加点/減点）
+function seasonScore(recipe, season) {
+  const w = warmthOf(recipe);
+  if (season === 'summer') { if (w === 'hot') return -6; if (w === 'cool') return 2; }
+  else if (season === 'winter') { if (w === 'cool') return -3; if (w === 'hot' || w === 'nabe') return 2; }
+  return 0;
+}
+
+// ---- 主菜 / 副菜 / 汁物 の判定 ----
+const SUB_NAME_RE = /サラダ|和え|おひたし|お浸し|ナムル|マリネ|ピクルス|漬|冷奴|冷や奴|酢の物|白和え|きんぴら|煮浸し|浅漬|ぬた|おかか|カプレーゼ/;
+const SOUP_NAME_RE = /味噌汁|みそ汁|スープ|汁|チャウダー|ポタージュ|ミネストローネ|チゲ|吸い物/;
+const ROLE_LABEL = { main: '主菜', sub: '副菜', soup: '汁物' };
+// 料理名・材料からの自動判定
+function autoDishRole(recipe) {
+  const nm = recipe.name || '';
+  if (warmthOf(recipe) === 'nabe') return 'main';   // 鍋物・すき焼き等は主役
+  if (SOUP_NAME_RE.test(nm)) return 'soup';          // 味噌汁・豚汁・スープは「汁物」
+  if (SUB_NAME_RE.test(nm)) return 'sub';
   const info = recipeNutritionInfo(recipe);
   if (info.oneDish) return 'main';                 // 丼・カレー・麺などは単品で主役
   if (info.protein === 'meat' || info.protein === 'fish') return 'main';
   return 'sub';                                    // 卵・大豆・野菜中心で主食でないものは副菜扱い
+}
+// 'main' | 'sub' | 'soup'。recipe.role が手動設定されていればそれを優先
+function dishRole(recipe) {
+  if (recipe && (recipe.role === 'main' || recipe.role === 'sub' || recipe.role === 'soup')) return recipe.role;
+  return autoDishRole(recipe);
+}
+
+// ---- 料理の「和・洋・中・エスニック」スタイル判定 ----
+// カテゴリ「その他」は和洋がごちゃ混ぜなので、料理名からもスタイルを推定する
+const STYLE_BY_CAT = { '和食': 'washoku', '洋食': 'yoshoku', '中華': 'chuka', 'エスニック': 'ethnic' };
+const STYLE_KW = {
+  chuka: /麻婆|回鍋|青椒|餃子|焼売|春雨|バンバンジー|エビチリ|八宝菜|中華|担々|チャーハン|酢豚|油淋|春巻|エビマヨ|蟹玉|中華丼/,
+  ethnic: /ガパオ|フォー|タコス|パッタイ|トムヤム|ナシゴレン|バインミー|タンドリー|パエリア|グリーンカレー|ビビンバ|チャプチェ|プルコギ|キムチ|チゲ|ナムル|インドカレー/,
+  washoku: /焼きそば|お好み焼|たこ焼|おにぎり|味噌汁|みそ汁|豚汁|冷奴|ひじき|きんぴら|納豆|漬|おでん|うどん|そば|丼|茶碗蒸し|肉じゃが|生姜焼|照り焼|筑前煮|すき焼|親子|和風|天ぷら|天丼|唐揚|焼き鳥|さば|ぶり|鮭|手巻き|かつお|ちらし/,
+  yoshoku: /グラタン|シチュー|チャウダー|コーンスープ|ミネストローネ|ポタージュ|カプレーゼ|コブ|シーザー|サンド|トースト|パンケーキ|オムレツ|オムライス|アヒージョ|ラタトゥイユ|ジャーマン|パスタ|スパゲ|ピザ|リゾット|ナポリタン|カルボ|ステーキ|ハンバーグ|ポトフ|ロールキャベツ|ムニエル|ソテー|フライ|ドリア|クロック/
+};
+function cuisineStyle(recipe) {
+  const cat = recipe.category;
+  if (STYLE_BY_CAT[cat]) return STYLE_BY_CAT[cat];   // 明示カテゴリを優先
+  const nm = recipe.name || '';
+  if (STYLE_KW.chuka.test(nm)) return 'chuka';
+  if (STYLE_KW.ethnic.test(nm)) return 'ethnic';
+  if (STYLE_KW.washoku.test(nm)) return 'washoku';
+  if (STYLE_KW.yoshoku.test(nm)) return 'yoshoku';
+  return 'neutral';                                  // ポテサラ・卵料理など、どの系統にも合う
+}
+
+// ---- 主菜と副菜/汁物の「相性」（和・洋・中の系統で判定） ----
+function pairCompat(mainRecipe, sideRecipe) {
+  const ms = cuisineStyle(mainRecipe);
+  const ss = cuisineStyle(sideRecipe);
+  if (ss === ms) return 3;                                        // 同系統がベスト（和×和・洋×洋）
+  if (dishRole(sideRecipe) === 'soup' && ss === 'washoku') return 1; // 味噌汁・豚汁は万能
+  if (ss === 'neutral' || ms === 'neutral') return 1;             // ポテサラ等はどれにも合う
+  return -3;                                                     // 和×洋（焼きそば×チャウダー等）は不自然
 }
 
 function bindSuggestHandlers() {
@@ -3091,6 +3223,20 @@ function bindSuggestHandlers() {
       state.suggestDays = parseInt(btn.dataset.days, 10);
     });
   });
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.suggestSeason = btn.dataset.season;
+    });
+  });
+  document.getElementById('optWithSub').addEventListener('change', (e) => { state.suggestWithSub = e.target.checked; });
+  document.getElementById('optWithSoup').addEventListener('change', (e) => { state.suggestWithSoup = e.target.checked; });
+  // 1日だけ提案（レシピ選択モーダル内のボタン）
+  document.getElementById('suggestDayBtn').addEventListener('click', () => {
+    const t = state.selectModalTargetDay;
+    if (t) suggestForDay(t.weekKey, t.dayKey);
+  });
 }
 
 function openSuggestModal() {
@@ -3098,17 +3244,21 @@ function openSuggestModal() {
   state._suggestPlan = null;
   document.getElementById('suggestResult').innerHTML = '';
   document.getElementById('suggestActions').classList.add('hidden');
-  // 日数トグルの表示を状態に同期
+  // トグルの表示を状態に同期
   document.querySelectorAll('.sdays-btn').forEach(b =>
     b.classList.toggle('active', parseInt(b.dataset.days, 10) === state.suggestDays));
+  document.querySelectorAll('.season-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.season === (state.suggestSeason || 'auto')));
+  document.getElementById('optWithSub').checked = state.suggestWithSub !== false;
+  document.getElementById('optWithSoup').checked = !!state.suggestWithSoup;
   document.getElementById('applyThisLabel').textContent = formatJapaneseDate(state.currentWeekStart) + '〜';
   document.getElementById('applyNextLabel').textContent = formatJapaneseDate(addDays(state.currentWeekStart, 7)) + '〜';
   showModal('suggestModal');
 }
 
-// バランス重視でメイン料理をnDays品選ぶ（貪欲＋ランダム性）
-function generateMains(nDays) {
-  const pool = state.recipes.filter(r => r.ingredients && r.ingredients.length >= 2 && dishRole(r) === 'main');
+// バランス重視でメイン料理をnDays品選ぶ（貪欲＋ランダム性＋季節）
+function generateMains(nDays, season) {
+  const pool = state.recipes.filter(r => r.ingredients && r.ingredients.length >= 2 && !r.excludeFromSuggest && dishRole(r) === 'main' && seasonAllows(r, season));
   if (pool.length === 0) return [];
   const chosen = [];
   const usedIds = new Set();
@@ -3129,6 +3279,7 @@ function generateMains(nDays) {
       s += Math.min(info.vegScore, 4) * 0.6;
       if (info.oneDish) s -= oneDishCount * 1.5;
       s += (r.rating || 0) * 0.25;
+      s += seasonScore(r, season);
       const last = lastCooked[r.id];
       if (!last) s += 0.5;
       else s += Math.min(Math.floor((Date.now() - new Date(last).getTime()) / 86400000), 60) / 60 * 0.8;
@@ -3147,52 +3298,58 @@ function generateMains(nDays) {
   return chosen;
 }
 
-// 各メインに、野菜が多い副菜を1品ずつ組み合わせる
-function pickSubForEach(mains) {
-  const subsPool = state.recipes.filter(r => r.ingredients && r.ingredients.length >= 1 && dishRole(r) === 'sub');
-  if (subsPool.length === 0) return mains.map(() => null);
+// 各メインに合う副菜/汁物を1品ずつ（相性＝日本の家庭料理の組み合わせを重視）
+function pickSideForEach(mains, role, season) {
+  const pool = state.recipes.filter(r => r.ingredients && r.ingredients.length >= 1 && !r.excludeFromSuggest && dishRole(r) === role && seasonAllows(r, season));
+  if (pool.length === 0) return mains.map(() => null);
   const used = new Set();
   return mains.map(main => {
-    let candidates = subsPool.filter(s => !used.has(s.id));
-    if (candidates.length === 0) { used.clear(); candidates = subsPool.slice(); }
+    let candidates = pool.filter(s => !used.has(s.id));
+    if (candidates.length === 0) { used.clear(); candidates = pool.slice(); }
     let best = null, bestScore = -Infinity;
     for (const s of candidates) {
       const info = recipeNutritionInfo(s);
-      let sc = info.vegScore * 1.2 + (s.rating || 0) * 0.2 + Math.random() * 2;
-      if (s.category === main.category) sc -= 0.5; // メインと違う系統の副菜を少し優先
+      let sc = pairCompat(main, s) * 3.0             // 相性を最重視（和食主菜には和食系の副菜、など）
+             + info.vegScore * 0.8
+             + (s.rating || 0) * 0.2
+             + seasonScore(s, season)
+             + Math.random() * 1.5;
       if (sc > bestScore) { bestScore = sc; best = s; }
     }
-    if (best) used.add(best.id);
+    // 相性が悪い（和×洋など）ものしか残っていない場合は、無理に付けずに省略する
+    if (!best || pairCompat(main, best) < 0) return null;
+    used.add(best.id);
     return best;
   });
 }
 
-// 1日の使用期限＝メイン・サブの材料で最短の日持ち
+// 1日の使用期限＝メイン・副菜・汁物の材料で最短の日持ち
 function dayUrgencyDays(day) {
   let min = SHELF_DEFAULT;
-  [day.main, day.sub].forEach(r => { if (r) min = Math.min(min, dishUrgency(r).days); });
+  [day.main, day.sub, day.soup].forEach(r => { if (r) min = Math.min(min, dishUrgency(r).days); });
   return min;
 }
 
 function runSuggest() {
   const nDays = state.suggestDays || 5;
-  const mains = generateMains(nDays);
+  const season = resolveSeason();
+  const mains = generateMains(nDays, season);
   if (mains.length === 0) {
     showToast('提案できるメイン料理が不足しています');
     return;
   }
-  const subs = pickSubForEach(mains);
-  let days = mains.map((m, i) => ({ main: m, sub: subs[i] }));
+  const subs = state.suggestWithSub ? pickSideForEach(mains, 'sub', season) : mains.map(() => null);
+  const soups = state.suggestWithSoup ? pickSideForEach(mains, 'soup', season) : mains.map(() => null);
+  let days = mains.map((m, i) => ({ main: m, sub: subs[i], soup: soups[i] }));
   // 使用期限の近い日を前半（月曜側）へ
   days.sort((a, b) => dayUrgencyDays(a) - dayUrgencyDays(b));
   state._suggestPlan = days;
-  renderSuggestResult(days);
+  renderSuggestResult(days, season);
   document.getElementById('suggestActions').classList.remove('hidden');
 }
 
-function renderSuggestResult(days) {
+function renderSuggestResult(days, season) {
   const dayJp = ['月', '火', '水', '木', '金', '土', '日'];
-  // 栄養サマリー（たんぱく源はメインで判定、野菜は副菜も加味）
   const sum = { fish: 0, meat: 0, soy: 0, egg: 0, veg: 0 };
   const cat = {};
   let fried = 0, vegRichDays = 0;
@@ -3201,7 +3358,9 @@ function renderSuggestResult(days) {
     sum[mi.protein]++;
     cat[d.main.category] = (cat[d.main.category] || 0) + 1;
     if (mi.fried) fried++;
-    const dayVeg = mi.vegScore + (d.sub ? recipeNutritionInfo(d.sub).vegScore : 0);
+    const dayVeg = mi.vegScore
+      + (d.sub ? recipeNutritionInfo(d.sub).vegScore : 0)
+      + (d.soup ? recipeNutritionInfo(d.soup).vegScore : 0);
     if (dayVeg >= 3) vegRichDays++;
   });
   const proteinChips = ['meat', 'fish', 'soy', 'egg', 'veg']
@@ -3215,13 +3374,17 @@ function renderSuggestResult(days) {
     ? '✅ メインのたんぱく源がバランス良く分散しています'
     : '⚠️ たんぱく源がやや偏り気味です（別の案も試せます）');
   notes.push(vegRichDays >= Math.ceil(days.length / 2)
-    ? '✅ 副菜込みで野菜がしっかり摂れる日が多めです'
+    ? '✅ 野菜がしっかり摂れる日が多めです'
     : '⚠️ 野菜が少なめの日があります');
   notes.push(fried <= 1 ? '✅ 揚げ物・こってりは控えめです' : `⚠️ 揚げ物・こってりが${fried}回あります`);
 
+  const seasonNote = season === 'summer' ? '🌞 夏：鍋物・熱々の煮込みは避けています'
+    : season === 'winter' ? '⛄ 冬：温かい料理を優先しています'
+    : season === 'spring' ? '🌸 春の献立' : '🍁 秋の献立';
+
   let html = `
     <div class="nutri-summary">
-      <div class="nutri-title">栄養バランス（大人向けの目安・メイン＋副菜）</div>
+      <div class="nutri-title">栄養バランス（大人向けの目安）／${seasonNote}</div>
       <div class="nutri-row">${proteinChips}</div>
       <div class="nutri-row">${catChips}</div>
       ${notes.map(n => `<div class="nutri-note ${n.startsWith('⚠️') ? 'warn' : ''}">${n}</div>`).join('')}
@@ -3230,25 +3393,25 @@ function renderSuggestResult(days) {
 
   days.forEach((d, i) => {
     const mi = recipeNutritionInfo(d.main);
-    const urg = { days: dayUrgencyDays(d) };
-    // 期限を決めている食材（メイン・サブ横断で最短）
+    const urgDays = dayUrgencyDays(d);
     let limitName = '';
-    [d.main, d.sub].forEach(r => { if (r) { const u = dishUrgency(r); if (u.days === urg.days) limitName = u.ingName; } });
-    let shelfClass = shelfClassOf(urg.days), shelfText;
-    if (urg.days <= 2) shelfText = `最優先（${limitName}·約${urg.days}日）`;
-    else if (urg.days <= 4) shelfText = `前半で（約${urg.days}日）`;
-    else if (urg.days >= SHELF_DEFAULT) shelfText = '日持ちOK';
-    else shelfText = `約${urg.days}日`;
+    [d.main, d.sub, d.soup].forEach(r => { if (r) { const u = dishUrgency(r); if (u.days === urgDays) limitName = u.ingName; } });
+    let shelfClass = shelfClassOf(urgDays), shelfText;
+    if (urgDays <= 2) shelfText = `最優先（${limitName}·約${urgDays}日）`;
+    else if (urgDays <= 4) shelfText = `前半で（約${urgDays}日）`;
+    else if (urgDays >= SHELF_DEFAULT) shelfText = '日持ちOK';
+    else shelfText = `約${urgDays}日`;
 
-    const subHtml = d.sub
-      ? `<div class="sd-sub">＋副菜：${escapeHtml(d.sub.name)}</div>`
-      : `<div class="sd-sub sd-nosub">＋副菜なし</div>`;
+    let sidesHtml = '';
+    if (d.sub) sidesHtml += `<div class="sd-sub">＋副菜：${escapeHtml(d.sub.name)}</div>`;
+    if (d.soup) sidesHtml += `<div class="sd-sub">＋汁物：${escapeHtml(d.soup.name)}</div>`;
+    if (!d.sub && !d.soup) sidesHtml = `<div class="sd-sub sd-nosub">主菜のみ</div>`;
     html += `
       <div class="suggest-day">
         <div class="sd-day">${dayJp[i]}</div>
         <div class="sd-main">
           <div class="sd-name">🍽 ${escapeHtml(d.main.name)} <span class="sd-role">主菜</span></div>
-          ${subHtml}
+          ${sidesHtml}
           <div class="sd-tags"><span>${PROTEIN_LABEL[mi.protein]}</span><span>${escapeHtml(d.main.category)}</span></div>
         </div>
         <div class="sd-shelf ${shelfClass}">🧊 ${escapeHtml(shelfText)}</div>
@@ -3276,6 +3439,7 @@ function applySuggestToWeek(monday) {
     });
     if (d.main) slots.push(mkSlot(d.main.id));
     if (d.sub) slots.push(mkSlot(d.sub.id));
+    if (d.soup) slots.push(mkSlot(d.soup.id));
     if (slots.length) state.weekPlan[wk][dayKey] = slots;
   });
   Storage.save(STORAGE_KEYS.weekPlan, state.weekPlan);
@@ -3283,6 +3447,68 @@ function applySuggestToWeek(monday) {
   state.currentWeekStart = new Date(monday);
   switchTab('week');
   showToast('献立を反映しました');
+}
+
+// 特定の1日だけ提案（その週の他の曜日との栄養バランスを考慮）
+function suggestForDay(weekKey, dayKey) {
+  const season = resolveSeason();
+  const week = state.weekPlan[weekKey] || {};
+  // 他の曜日で使用中のメインの傾向を集計
+  const protein = { fish: 0, meat: 0, soy: 0, egg: 0, veg: 0 };
+  const catCount = {};
+  let fried = 0;
+  const usedRecipeIds = new Set();
+  DAY_ORDER.forEach(d => {
+    if (d === dayKey) return;
+    (Array.isArray(week[d]) ? week[d] : []).forEach(s => {
+      const r = state.recipes.find(x => x.id === s.recipeId);
+      if (!r) return;
+      usedRecipeIds.add(r.id);
+      if (dishRole(r) === 'main') {
+        const info = recipeNutritionInfo(r);
+        protein[info.protein]++;
+        catCount[r.category] = (catCount[r.category] || 0) + 1;
+        if (info.fried) fried++;
+      }
+    });
+  });
+  const lastCooked = buildLastCookedMap();
+  const pool = state.recipes.filter(r => r.ingredients && r.ingredients.length >= 2 &&
+    !r.excludeFromSuggest && dishRole(r) === 'main' && seasonAllows(r, season) && !usedRecipeIds.has(r.id));
+  if (pool.length === 0) { showToast('提案できる料理がありません'); return; }
+
+  let best = null, bestScore = -Infinity;
+  for (const r of pool) {
+    const info = recipeNutritionInfo(r);
+    let s = 0;
+    s -= protein[info.protein] * 3.0;
+    s -= (catCount[r.category] || 0) * 2.0;
+    if (info.fried) s -= fried * 3 + 1.0;
+    s += Math.min(info.vegScore, 4) * 0.6;
+    s += (r.rating || 0) * 0.25;
+    s += seasonScore(r, season);
+    const last = lastCooked[r.id];
+    if (!last) s += 0.5;
+    else s += Math.min(Math.floor((Date.now() - new Date(last).getTime()) / 86400000), 60) / 60 * 0.8;
+    s += Math.random() * 2.2;
+    if (s > bestScore) { bestScore = s; best = r; }
+  }
+  if (!best) { showToast('提案できる料理がありません'); return; }
+
+  const day = { main: best, sub: null, soup: null };
+  if (state.suggestWithSub) day.sub = pickSideForEach([best], 'sub', season)[0];
+  if (state.suggestWithSoup) day.soup = pickSideForEach([best], 'soup', season)[0];
+
+  const slots = [];
+  const mkSlot = (rid) => ({ slotId: 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + slots.length, recipeId: rid, checked: [], completed: false, completedAt: null });
+  [day.main, day.sub, day.soup].forEach(r => { if (r) slots.push(mkSlot(r.id)); });
+  if (!state.weekPlan[weekKey]) state.weekPlan[weekKey] = {};
+  state.weekPlan[weekKey][dayKey] = slots;
+  Storage.save(STORAGE_KEYS.weekPlan, state.weekPlan);
+  hideModal('selectRecipeModal');
+  renderWeek();
+  const names = slots.map(s => (state.recipes.find(r => r.id === s.recipeId) || {}).name).filter(Boolean).join('＋');
+  showToast(`この日の提案：${names}`);
 }
 
 // 1日ぶん（メイン＋副菜など）の最短日持ち

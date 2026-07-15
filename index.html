@@ -254,6 +254,13 @@
     <div class="modal-content">
       <button class="modal-close" data-close="selectRecipeModal">✕</button>
       <h2 class="modal-title" id="selectModalTitle">料理を選ぶ</h2>
+      <button id="suggestDayBtn" class="primary-btn full-width" style="margin-bottom:12px;">🍱 この日をおすすめで埋める（他の曜日とのバランス考慮）</button>
+      <div class="select-role-filter">
+        <button class="srole-btn active" data-role="all" type="button">すべて</button>
+        <button class="srole-btn" data-role="main" type="button">主菜</button>
+        <button class="srole-btn" data-role="sub" type="button">副菜</button>
+        <button class="srole-btn" data-role="soup" type="button">汁物</button>
+      </div>
       <input type="text" id="selectSearch" placeholder="🔍 検索" class="search-input">
       <div id="selectSuggestions" class="select-suggestions"></div>
       <div id="selectRecipeList" class="recipe-list compact"></div>
@@ -277,6 +284,16 @@
           <option value="その他">その他</option>
         </select>
       </label>
+      <label class="form-label">ジャンル（献立での役割）
+        <select id="editRole" class="form-input">
+          <option value="auto">自動判定（おまかせ）</option>
+          <option value="main">主菜（メイン）</option>
+          <option value="sub">副菜</option>
+          <option value="soup">汁物</option>
+        </select>
+        <div id="editRoleHint" class="role-hint"></div>
+      </label>
+      <label class="toggle-label edit-toggle"><input type="checkbox" id="editIncludeSuggest" checked> 🍱 自動提案の対象にする（オフでも一覧には残ります）</label>
       <label class="form-label">何人前
         <input type="number" id="editServings" class="form-input" min="1" max="20" value="2">
       </label>
@@ -375,6 +392,18 @@
       <div class="suggest-days-toggle">
         <button class="sdays-btn active" data-days="5" type="button">月〜金（5日）</button>
         <button class="sdays-btn" data-days="7" type="button">月〜日（7日）</button>
+      </div>
+      <div class="suggest-field-label">季節</div>
+      <div class="season-toggle">
+        <button class="season-btn active" data-season="auto" type="button">自動</button>
+        <button class="season-btn" data-season="spring" type="button">春</button>
+        <button class="season-btn" data-season="summer" type="button">夏</button>
+        <button class="season-btn" data-season="autumn" type="button">秋</button>
+        <button class="season-btn" data-season="winter" type="button">冬</button>
+      </div>
+      <div class="suggest-options">
+        <label class="toggle-label"><input type="checkbox" id="optWithSub" checked> 副菜をつける</label>
+        <label class="toggle-label"><input type="checkbox" id="optWithSoup"> 汁物をつける</label>
       </div>
       <button id="generateSuggestBtn" class="primary-btn full-width">✨ 提案する</button>
       <div id="suggestResult" class="suggest-result"></div>
