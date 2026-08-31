@@ -4,7 +4,7 @@
 // 材料は { name: '材料名', amount: '分量' } 形式
 // ===================================================================
 
-const SAMPLE_DATA_VERSION = 2;
+const SAMPLE_DATA_VERSION = 4; // v4: 日本の一般家庭に特化（エスニック整理＋定番を大幅追加）
 
 const SAMPLE_RECIPES = [
   // ============== 和食 25件 ==============
@@ -917,47 +917,6 @@ const SAMPLE_RECIPES = [
       { name: '卵', amount: '2個' },
       { name: 'ご飯', amount: '400g' }
     ] },
-  { id: 'r072', name: 'パッタイ', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: 'センレック（タイ米麺）', amount: '160g' },
-      { name: 'えび', amount: '8尾' },
-      { name: '厚揚げ', amount: '80g' },
-      { name: 'もやし', amount: '100g' },
-      { name: 'にら', amount: '50g' },
-      { name: '卵', amount: '2個' },
-      { name: 'ナンプラー', amount: '大さじ2' },
-      { name: 'タマリンドペースト', amount: '大さじ1' },
-      { name: '砂糖', amount: '大さじ1' },
-      { name: 'ピーナッツ', amount: '30g' },
-      { name: 'ライム', amount: '1/2個' },
-      { name: 'サラダ油', amount: '大さじ2' }
-    ] },
-  { id: 'r073', name: 'グリーンカレー', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: '鶏もも肉', amount: '200g' },
-      { name: 'なす', amount: '1本' },
-      { name: 'たけのこ水煮', amount: '80g' },
-      { name: 'パプリカ', amount: '1/2個' },
-      { name: 'グリーンカレーペースト', amount: '大さじ2' },
-      { name: 'ココナッツミルク', amount: '400ml' },
-      { name: 'ナンプラー', amount: '大さじ2' },
-      { name: '砂糖', amount: '大さじ1' },
-      { name: 'バジル', amount: '10枚' },
-      { name: 'ご飯（ジャスミン米）', amount: '400g' }
-    ] },
-  { id: 'r074', name: 'トムヤムクン', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: 'えび', amount: '8尾' },
-      { name: 'マッシュルーム', amount: '60g' },
-      { name: 'レモングラス', amount: '2本' },
-      { name: 'バイマックル', amount: '4枚' },
-      { name: 'ナンプラー', amount: '大さじ2' },
-      { name: 'ライム汁', amount: '大さじ2' },
-      { name: '唐辛子', amount: '2本' },
-      { name: 'ココナッツミルク', amount: '100ml' },
-      { name: '水', amount: '500ml' },
-      { name: 'パクチー', amount: '少々' }
-    ] },
   { id: 'r075', name: 'プルコギ', category: 'エスニック', servings: 2,
     ingredients: [
       { name: '牛切り落とし肉', amount: '300g' },
@@ -1017,109 +976,6 @@ const SAMPLE_RECIPES = [
       { name: 'にんにく', amount: '1片' },
       { name: '白ごま', amount: '大さじ1' }
     ] },
-  { id: 'r079', name: 'タコス', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: 'トルティーヤ', amount: '6枚' },
-      { name: '牛ひき肉', amount: '200g' },
-      { name: '玉ねぎ', amount: '80g' },
-      { name: 'レタス', amount: '60g' },
-      { name: 'トマト', amount: '1個' },
-      { name: 'アボカド', amount: '1個' },
-      { name: 'シュレッドチーズ', amount: '60g' },
-      { name: 'サルサソース', amount: '大さじ4' },
-      { name: 'タコシーズニング', amount: '1袋' },
-      { name: 'サワークリーム', amount: '大さじ2' },
-      { name: 'ライム', amount: '1/2個' }
-    ] },
-  { id: 'r080', name: 'インドチキンカレー', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: '鶏もも肉', amount: '300g' },
-      { name: '玉ねぎ', amount: '200g' },
-      { name: 'トマト缶', amount: '1/2缶' },
-      { name: 'ヨーグルト', amount: '100g' },
-      { name: 'にんにく', amount: '2片' },
-      { name: '生姜', amount: '20g' },
-      { name: 'カレー粉', amount: '大さじ2' },
-      { name: 'クミン', amount: '小さじ1' },
-      { name: 'ガラムマサラ', amount: '小さじ1' },
-      { name: 'バター', amount: '20g' },
-      { name: '生クリーム', amount: '50ml' },
-      { name: 'ご飯（バスマティ米）', amount: '300g' }
-    ] },
-  { id: 'r081', name: 'ナシゴレン', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: 'ご飯', amount: '400g' },
-      { name: '鶏もも肉', amount: '120g' },
-      { name: 'えび', amount: '80g' },
-      { name: '玉ねぎ', amount: '80g' },
-      { name: 'にんにく', amount: '2片' },
-      { name: '赤唐辛子', amount: '1本' },
-      { name: 'サンバルソース', amount: '大さじ1' },
-      { name: 'ケチャップマニス', amount: '大さじ2' },
-      { name: 'ナンプラー', amount: '大さじ1' },
-      { name: '卵', amount: '2個' },
-      { name: 'きゅうり', amount: '1/2本' },
-      { name: 'トマト', amount: '1個' }
-    ] },
-  { id: 'r082', name: 'フォー', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: 'フォーの麺', amount: '160g' },
-      { name: '鶏むね肉', amount: '150g' },
-      { name: 'もやし', amount: '100g' },
-      { name: '玉ねぎ', amount: '50g' },
-      { name: 'パクチー', amount: '20g' },
-      { name: 'ライム', amount: '1個' },
-      { name: '鶏がらスープ', amount: '800ml' },
-      { name: 'ナンプラー', amount: '大さじ2' },
-      { name: '生姜', amount: '20g' },
-      { name: '八角', amount: '1個' },
-      { name: '赤唐辛子', amount: '1本' }
-    ] },
-  { id: 'r083', name: 'バインミー', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: 'バゲット', amount: '2本' },
-      { name: '豚レバーパテ', amount: '80g' },
-      { name: 'ハム', amount: '80g' },
-      { name: '人参', amount: '80g' },
-      { name: '大根', amount: '80g' },
-      { name: 'きゅうり', amount: '1/2本' },
-      { name: 'パクチー', amount: '20g' },
-      { name: '酢', amount: '大さじ2' },
-      { name: '砂糖', amount: '大さじ1' },
-      { name: 'マヨネーズ', amount: '大さじ2' },
-      { name: 'ナンプラー', amount: '小さじ1' }
-    ] },
-  { id: 'r084', name: 'タンドリーチキン', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: '鶏もも肉', amount: '400g' },
-      { name: 'プレーンヨーグルト', amount: '100g' },
-      { name: 'にんにく（すりおろし）', amount: '2片' },
-      { name: '生姜（すりおろし）', amount: '20g' },
-      { name: 'カレー粉', amount: '大さじ2' },
-      { name: 'パプリカパウダー', amount: '小さじ1' },
-      { name: 'ガラムマサラ', amount: '小さじ1' },
-      { name: 'レモン汁', amount: '大さじ1' },
-      { name: '塩', amount: '小さじ1' },
-      { name: 'サラダ油', amount: '大さじ1' }
-    ] },
-  { id: 'r085', name: 'パエリア', category: 'エスニック', servings: 2,
-    ingredients: [
-      { name: '米', amount: '160g' },
-      { name: '鶏もも肉', amount: '120g' },
-      { name: 'えび', amount: '6尾' },
-      { name: 'あさり', amount: '150g' },
-      { name: 'イカ', amount: '80g' },
-      { name: '玉ねぎ', amount: '80g' },
-      { name: 'パプリカ', amount: '1/2個' },
-      { name: 'にんにく', amount: '2片' },
-      { name: 'トマト缶', amount: '1/4缶' },
-      { name: 'サフラン', amount: '少々' },
-      { name: 'コンソメ', amount: '1個' },
-      { name: '水', amount: '350ml' },
-      { name: 'オリーブオイル', amount: '大さじ3' },
-      { name: 'レモン', amount: '1/2個' }
-    ] },
-
   // ============== その他・サラダ・軽食 15件 ==============
   { id: 'r086', name: 'ポテトサラダ', category: 'その他', servings: 2,
     ingredients: [
@@ -1286,6 +1142,1466 @@ const SAMPLE_RECIPES = [
       { name: '醤油', amount: '大さじ1' },
       { name: 'みりん', amount: '大さじ1' },
       { name: '片栗粉', amount: '小さじ2' }
+    ] },
+
+  // ============== 日本の家庭定番 追加100件（v3） ==============
+  // ---- 和食・主菜 ----
+  { id: 'r101', name: 'チキン南蛮', category: '和食', servings: 2,
+    ingredients: [
+      { name: '鶏もも肉', amount: '300g' },
+      { name: '卵', amount: '1個' },
+      { name: '小麦粉', amount: '大さじ3' },
+      { name: '酢', amount: '大さじ2' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ2' },
+      { name: 'マヨネーズ', amount: '大さじ4' },
+      { name: 'ゆで卵', amount: '1個' },
+      { name: '玉ねぎ', amount: '40g' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r102', name: '豚の角煮', category: '和食', servings: 2,
+    ingredients: [
+      { name: '豚バラブロック', amount: '400g' },
+      { name: '長ねぎ（青い部分）', amount: '1本分' },
+      { name: '生姜', amount: '20g' },
+      { name: '醤油', amount: '大さじ4' },
+      { name: '砂糖', amount: '大さじ3' },
+      { name: '酒', amount: '100ml' },
+      { name: 'ゆで卵', amount: '2個' }
+    ] },
+  { id: 'r103', name: '鶏の竜田揚げ', category: '和食', servings: 2,
+    ingredients: [
+      { name: '鶏もも肉', amount: '300g' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '片栗粉', amount: '大さじ6' },
+      { name: 'レモン', amount: '1/2個' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r104', name: 'ぶりの照り焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ぶり', amount: '2切れ' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '砂糖', amount: '小さじ2' },
+      { name: 'サラダ油', amount: '大さじ1/2' },
+      { name: '大根おろし', amount: '100g' }
+    ] },
+  { id: 'r105', name: 'さんまの塩焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'さんま', amount: '2尾' },
+      { name: '塩', amount: '小さじ1' },
+      { name: '大根おろし', amount: '150g' },
+      { name: 'すだち', amount: '1個' },
+      { name: '醤油', amount: '少々' }
+    ] },
+  { id: 'r106', name: 'あじの南蛮漬け', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: 'あじ（三枚おろし）', amount: '3尾分' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: '人参', amount: '40g' },
+      { name: 'ピーマン', amount: '1個' },
+      { name: '酢', amount: '大さじ4' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ2' },
+      { name: '鷹の爪', amount: '1本' },
+      { name: '片栗粉', amount: '大さじ3' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r107', name: 'あじフライ', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'あじ（開き）', amount: '4枚' },
+      { name: '小麦粉', amount: '大さじ3' },
+      { name: '卵', amount: '1個' },
+      { name: 'パン粉', amount: '60g' },
+      { name: 'キャベツ（千切り）', amount: '100g' },
+      { name: '中濃ソース', amount: '適量' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r108', name: 'かれいの煮付け', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'かれい', amount: '2切れ' },
+      { name: '生姜（薄切り）', amount: '15g' },
+      { name: '醤油', amount: '大さじ3' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1.5' },
+      { name: '酒', amount: '大さじ3' },
+      { name: '水', amount: '150ml' }
+    ] },
+  { id: 'r109', name: 'さわらの西京焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'さわら', amount: '2切れ' },
+      { name: '西京味噌', amount: '大さじ3' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: '酒', amount: '大さじ1' }
+    ] },
+  { id: 'r110', name: '鮭のムニエル', category: '和食', servings: 2,
+    ingredients: [
+      { name: '生鮭切り身', amount: '2切れ' },
+      { name: '小麦粉', amount: '大さじ2' },
+      { name: 'バター', amount: '20g' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: 'レモン', amount: '1/2個' },
+      { name: 'パセリ', amount: '少々' }
+    ] },
+  { id: 'r111', name: '鮭のホイル焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: '生鮭切り身', amount: '2切れ' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: 'しめじ', amount: '80g' },
+      { name: '人参', amount: '30g' },
+      { name: 'バター', amount: '20g' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: 'レモン', amount: '1/2個' }
+    ] },
+  { id: 'r112', name: 'いわしの梅煮', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'いわし', amount: '4尾' },
+      { name: '梅干し', amount: '2個' },
+      { name: '生姜（薄切り）', amount: '15g' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ3' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '水', amount: '150ml' }
+    ] },
+  { id: 'r113', name: 'かつおのたたき', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'かつおのたたき（サク）', amount: '250g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '小ねぎ', amount: '3本' },
+      { name: 'ポン酢', amount: '大さじ4' },
+      { name: '生姜（すりおろし）', amount: '10g' }
+    ] },
+  { id: 'r114', name: 'まぐろの漬け丼', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: 'まぐろ刺身', amount: '200g' },
+      { name: '醤油', amount: '大さじ3' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: 'ごま油', amount: '小さじ1' },
+      { name: 'ご飯', amount: '400g' },
+      { name: '大葉', amount: '4枚' },
+      { name: '白ごま', amount: '小さじ1' },
+      { name: '刻み海苔', amount: '適量' }
+    ] },
+  { id: 'r115', name: '海鮮丼', category: '和食', servings: 2,
+    ingredients: [
+      { name: '刺身盛り合わせ', amount: '250g' },
+      { name: 'ご飯', amount: '400g' },
+      { name: '大葉', amount: '4枚' },
+      { name: 'きゅうり', amount: '1/2本' },
+      { name: '醤油', amount: '適量' },
+      { name: 'わさび', amount: '適量' },
+      { name: '刻み海苔', amount: '適量' }
+    ] },
+  { id: 'r116', name: '三色そぼろ丼', category: '和食', servings: 2,
+    ingredients: [
+      { name: '鶏ひき肉', amount: '200g' },
+      { name: '卵', amount: '2個' },
+      { name: 'いんげん', amount: '6本' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: 'ご飯', amount: '400g' }
+    ] },
+  { id: 'r117', name: '肉豆腐', category: '和食', servings: 2,
+    ingredients: [
+      { name: '牛切り落とし肉', amount: '200g' },
+      { name: '木綿豆腐', amount: '300g' },
+      { name: '長ねぎ', amount: '1本' },
+      { name: 'えのき', amount: '100g' },
+      { name: '醤油', amount: '大さじ3' },
+      { name: '砂糖', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: 'だし汁', amount: '200ml' }
+    ] },
+  { id: 'r118', name: '豚バラ大根', category: '和食', servings: 2,
+    ingredients: [
+      { name: '豚バラ薄切り肉', amount: '200g' },
+      { name: '大根', amount: '400g' },
+      { name: '生姜（薄切り）', amount: '15g' },
+      { name: '醤油', amount: '大さじ3' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: 'だし汁', amount: '300ml' }
+    ] },
+  { id: 'r119', name: '手羽元と卵のさっぱり煮', category: '和食', servings: 2,
+    ingredients: [
+      { name: '手羽元', amount: '6本' },
+      { name: 'ゆで卵', amount: '2個' },
+      { name: '酢', amount: '100ml' },
+      { name: '醤油', amount: '80ml' },
+      { name: '砂糖', amount: '大さじ3' },
+      { name: '生姜（薄切り）', amount: '15g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '水', amount: '100ml' }
+    ] },
+  { id: 'r120', name: '鶏つくね（照り焼き）', category: '和食', servings: 2,
+    ingredients: [
+      { name: '鶏ひき肉', amount: '250g' },
+      { name: '長ねぎ', amount: '50g' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: '片栗粉', amount: '大さじ1' },
+      { name: '卵黄', amount: '1個分' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '小さじ2' }
+    ] },
+  { id: 'r121', name: '豆腐ハンバーグ', category: '和食', servings: 2,
+    ingredients: [
+      { name: '鶏ひき肉', amount: '200g' },
+      { name: '木綿豆腐', amount: '150g' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: 'パン粉', amount: '20g' },
+      { name: '卵', amount: '1個' },
+      { name: '大根おろし', amount: '100g' },
+      { name: 'ポン酢', amount: '大さじ3' },
+      { name: 'サラダ油', amount: '大さじ1' }
+    ] },
+  { id: 'r122', name: '和風おろしハンバーグ', category: '和食', servings: 2,
+    ingredients: [
+      { name: '合いびき肉', amount: '300g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: 'パン粉', amount: '30g' },
+      { name: '牛乳', amount: '大さじ3' },
+      { name: '卵', amount: '1個' },
+      { name: '大根おろし', amount: '150g' },
+      { name: 'ポン酢', amount: '大さじ4' },
+      { name: '大葉', amount: '4枚' }
+    ] },
+  { id: 'r123', name: 'ピーマンの肉詰め', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ピーマン', amount: '4個' },
+      { name: '合いびき肉', amount: '250g' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: 'パン粉', amount: '20g' },
+      { name: '卵', amount: '1個' },
+      { name: '小麦粉', amount: '適量' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: 'ケチャップ', amount: '大さじ1' }
+    ] },
+  { id: 'r124', name: '肉野菜炒め', category: '和食', servings: 2,
+    ingredients: [
+      { name: '豚こま切れ肉', amount: '200g' },
+      { name: 'キャベツ', amount: '200g' },
+      { name: '人参', amount: '50g' },
+      { name: 'ピーマン', amount: '2個' },
+      { name: 'もやし', amount: '100g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: 'サラダ油', amount: '大さじ1' }
+    ] },
+  { id: 'r125', name: '豚キムチ炒め', category: '和食', servings: 2,
+    ingredients: [
+      { name: '豚バラ薄切り肉', amount: '200g' },
+      { name: '白菜キムチ', amount: '200g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: 'にら', amount: '50g' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '醤油', amount: '小さじ2' }
+    ] },
+  { id: 'r126', name: 'なすと豚肉の味噌炒め', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'なす', amount: '3本' },
+      { name: '豚こま切れ肉', amount: '150g' },
+      { name: 'ピーマン', amount: '2個' },
+      { name: '味噌', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '醤油', amount: '小さじ2' },
+      { name: 'ごま油', amount: '大さじ2' },
+      { name: '生姜（すりおろし）', amount: '10g' }
+    ] },
+  { id: 'r127', name: 'ゴーヤチャンプルー', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ゴーヤ', amount: '1本' },
+      { name: '豚バラ薄切り肉', amount: '150g' },
+      { name: '木綿豆腐', amount: '200g' },
+      { name: '卵', amount: '2個' },
+      { name: 'かつお節', amount: '5g' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: 'ごま油', amount: '大さじ1' }
+    ] },
+  { id: 'r128', name: '白身魚のフライ', category: '和食', servings: 2,
+    ingredients: [
+      { name: '白身魚（たら等）', amount: '3切れ' },
+      { name: '小麦粉', amount: '大さじ3' },
+      { name: '卵', amount: '1個' },
+      { name: 'パン粉', amount: '60g' },
+      { name: 'キャベツ（千切り）', amount: '100g' },
+      { name: 'タルタルソース', amount: '大さじ3' },
+      { name: 'レモン', amount: '1/2個' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r129', name: 'ほっけの塩焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ほっけ（開き）', amount: '1枚' },
+      { name: '大根おろし', amount: '100g' },
+      { name: 'すだち', amount: '1個' },
+      { name: '醤油', amount: '少々' }
+    ] },
+  { id: 'r130', name: '五目炊き込みご飯', category: '和食', servings: 2,
+    ingredients: [
+      { name: '米', amount: '2合' },
+      { name: '鶏もも肉', amount: '100g' },
+      { name: '人参', amount: '40g' },
+      { name: 'ごぼう', amount: '40g' },
+      { name: '油揚げ', amount: '1枚' },
+      { name: '干し椎茸', amount: '2枚' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '和風だしの素', amount: '小さじ1' }
+    ] },
+  { id: 'r131', name: '鮭茶漬け', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ご飯', amount: '300g' },
+      { name: '塩鮭', amount: '1切れ' },
+      { name: '刻み海苔', amount: '適量' },
+      { name: '三つ葉', amount: '少々' },
+      { name: 'わさび', amount: '少々' },
+      { name: '白ごま', amount: '小さじ1' },
+      { name: 'だし汁', amount: '400ml' }
+    ] },
+  { id: 'r132', name: '卵雑炊', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ご飯', amount: '300g' },
+      { name: '卵', amount: '2個' },
+      { name: '長ねぎ', amount: '40g' },
+      { name: 'だし汁', amount: '500ml' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: '塩', amount: '少々' },
+      { name: '三つ葉', amount: '少々' }
+    ] },
+  { id: 'r133', name: '焼うどん', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'うどん（茹で）', amount: '2玉' },
+      { name: '豚こま切れ肉', amount: '150g' },
+      { name: 'キャベツ', amount: '150g' },
+      { name: '人参', amount: '40g' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ1' },
+      { name: 'かつお節', amount: '3g' },
+      { name: '青のり', amount: '少々' },
+      { name: 'サラダ油', amount: '大さじ1' }
+    ] },
+  { id: 'r134', name: '肉うどん', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'うどん（茹で）', amount: '2玉' },
+      { name: '牛切り落とし肉', amount: '150g' },
+      { name: '長ねぎ', amount: '1本' },
+      { name: 'だし汁', amount: '600ml' },
+      { name: '醤油', amount: '大さじ3' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' }
+    ] },
+  { id: 'r135', name: '鍋焼きうどん', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'うどん（茹で）', amount: '2玉' },
+      { name: '鶏もも肉', amount: '100g' },
+      { name: 'えび', amount: '2尾' },
+      { name: '卵', amount: '2個' },
+      { name: 'かまぼこ', amount: '4切れ' },
+      { name: 'ほうれん草', amount: '80g' },
+      { name: '生椎茸', amount: '2枚' },
+      { name: 'だし汁', amount: '700ml' },
+      { name: '醤油', amount: '大さじ2.5' },
+      { name: 'みりん', amount: '大さじ2' }
+    ] },
+  { id: 'r136', name: '味噌煮込みうどん', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'うどん（茹で）', amount: '2玉' },
+      { name: '鶏もも肉', amount: '150g' },
+      { name: '油揚げ', amount: '1枚' },
+      { name: '長ねぎ', amount: '1本' },
+      { name: '卵', amount: '2個' },
+      { name: '生椎茸', amount: '2枚' },
+      { name: '赤味噌', amount: '大さじ4' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: 'だし汁', amount: '700ml' }
+    ] },
+  { id: 'r137', name: 'ざるそば', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'そば（乾麺）', amount: '200g' },
+      { name: 'めんつゆ', amount: '150ml' },
+      { name: '長ねぎ', amount: '40g' },
+      { name: 'わさび', amount: '適量' },
+      { name: '刻み海苔', amount: '適量' }
+    ] },
+  { id: 'r138', name: 'そうめん', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'そうめん', amount: '3束' },
+      { name: 'めんつゆ', amount: '150ml' },
+      { name: 'みょうが', amount: '1個' },
+      { name: '大葉', amount: '4枚' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: '小ねぎ', amount: '2本' }
+    ] },
+  { id: 'r139', name: 'たこ焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'たこ', amount: '100g' },
+      { name: '小麦粉', amount: '150g' },
+      { name: '卵', amount: '2個' },
+      { name: 'だし汁', amount: '450ml' },
+      { name: '小ねぎ', amount: '30g' },
+      { name: '紅生姜', amount: '20g' },
+      { name: '天かす', amount: '20g' },
+      { name: 'お好み焼きソース', amount: '適量' },
+      { name: 'マヨネーズ', amount: '適量' },
+      { name: 'かつお節', amount: '3g' },
+      { name: '青のり', amount: '少々' }
+    ] },
+  { id: 'r140', name: '白菜と豚バラのミルフィーユ鍋', category: '和食', servings: 2,
+    ingredients: [
+      { name: '白菜', amount: '1/4個' },
+      { name: '豚バラ薄切り肉', amount: '300g' },
+      { name: 'だし汁', amount: '600ml' },
+      { name: '酒', amount: '大さじ2' },
+      { name: '塩', amount: '小さじ1' },
+      { name: 'ポン酢', amount: '適量' },
+      { name: 'ゆず胡椒', amount: '少々' }
+    ] },
+  { id: 'r141', name: '寄せ鍋', category: '和食', servings: 2,
+    ingredients: [
+      { name: '鶏もも肉', amount: '200g' },
+      { name: 'たら', amount: '2切れ' },
+      { name: '白菜', amount: '300g' },
+      { name: '長ねぎ', amount: '1本' },
+      { name: '生椎茸', amount: '4枚' },
+      { name: '木綿豆腐', amount: '200g' },
+      { name: '春菊', amount: '100g' },
+      { name: 'だし汁', amount: '800ml' },
+      { name: '醤油', amount: '大さじ3' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: 'ポン酢', amount: '適量' }
+    ] },
+  { id: 'r142', name: '水炊き', category: '和食', servings: 2,
+    ingredients: [
+      { name: '鶏もも肉', amount: '400g' },
+      { name: '白菜', amount: '300g' },
+      { name: '長ねぎ', amount: '1本' },
+      { name: '木綿豆腐', amount: '200g' },
+      { name: 'えのき', amount: '100g' },
+      { name: '昆布', amount: '10g' },
+      { name: '水', amount: '800ml' },
+      { name: 'ポン酢', amount: '適量' },
+      { name: '小ねぎ', amount: '3本' }
+    ] },
+  { id: 'r143', name: 'しゃぶしゃぶ', category: '和食', servings: 2,
+    ingredients: [
+      { name: '豚ロース肉（しゃぶしゃぶ用）', amount: '300g' },
+      { name: '白菜', amount: '200g' },
+      { name: '水菜', amount: '100g' },
+      { name: '長ねぎ', amount: '1本' },
+      { name: '木綿豆腐', amount: '150g' },
+      { name: '昆布', amount: '10g' },
+      { name: 'ポン酢', amount: '適量' },
+      { name: 'ごまだれ', amount: '適量' }
+    ] },
+  { id: 'r144', name: '湯豆腐', category: '和食', servings: 2,
+    ingredients: [
+      { name: '絹豆腐', amount: '600g（2丁）' },
+      { name: '昆布', amount: '10g' },
+      { name: '長ねぎ', amount: '40g' },
+      { name: 'かつお節', amount: '3g' },
+      { name: 'ポン酢', amount: '大さじ4' },
+      { name: 'ゆず皮', amount: '少々' }
+    ] },
+  { id: 'r145', name: '豚の冷しゃぶ', category: '和食', servings: 2,
+    ingredients: [
+      { name: '豚ロース肉（しゃぶしゃぶ用）', amount: '250g' },
+      { name: 'レタス', amount: '100g' },
+      { name: 'きゅうり', amount: '1本' },
+      { name: 'トマト', amount: '1個' },
+      { name: 'みょうが', amount: '1個' },
+      { name: 'ポン酢', amount: '大さじ4' },
+      { name: '白ごま', amount: '小さじ2' }
+    ] },
+  { id: 'r146', name: '明太子スパゲッティ', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'スパゲッティ', amount: '200g' },
+      { name: '明太子', amount: '80g（2腹）' },
+      { name: 'バター', amount: '20g' },
+      { name: '醤油', amount: '小さじ2' },
+      { name: '大葉', amount: '4枚' },
+      { name: '刻み海苔', amount: '適量' }
+    ] },
+  { id: 'r147', name: 'きのこの和風パスタ', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'スパゲッティ', amount: '200g' },
+      { name: 'しめじ', amount: '100g' },
+      { name: 'えのき', amount: '100g' },
+      { name: 'ベーコン', amount: '40g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: 'バター', amount: '15g' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: '刻み海苔', amount: '適量' },
+      { name: '小ねぎ', amount: '2本' }
+    ] },
+  { id: 'r148', name: '豚丼', category: '和食', servings: 2,
+    ingredients: [
+      { name: '豚バラ薄切り肉', amount: '200g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: '醤油', amount: '大さじ2.5' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: 'ご飯', amount: '400g' },
+      { name: '小ねぎ', amount: '2本' }
+    ] },
+  { id: 'r149', name: '焼きおにぎり', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ご飯', amount: '400g' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: 'かつお節', amount: '3g' },
+      { name: '白ごま', amount: '小さじ1' }
+    ] },
+
+  // ---- 和食・副菜 ----
+  { id: 'r150', name: 'だし巻き卵', category: '和食', servings: 2,
+    ingredients: [
+      { name: '卵', amount: '4個' },
+      { name: 'だし汁', amount: '60ml' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: 'みりん', amount: '小さじ2' },
+      { name: '砂糖', amount: '小さじ1' },
+      { name: 'サラダ油', amount: '適量' },
+      { name: '大根おろし', amount: '80g' }
+    ] },
+  { id: 'r151', name: 'ほうれん草のおひたし', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ほうれん草', amount: '200g' },
+      { name: 'かつお節', amount: '3g' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: 'だし汁', amount: '大さじ2' }
+    ] },
+  { id: 'r152', name: 'ほうれん草の胡麻和え', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ほうれん草', amount: '200g' },
+      { name: '白すりごま', amount: '大さじ3' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '醤油', amount: '大さじ1' }
+    ] },
+  { id: 'r153', name: '小松菜と油揚げの煮浸し', category: '和食', servings: 2,
+    ingredients: [
+      { name: '小松菜', amount: '200g' },
+      { name: '油揚げ', amount: '1枚' },
+      { name: 'だし汁', amount: '200ml' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: 'みりん', amount: '大さじ1' }
+    ] },
+  { id: 'r154', name: 'なすの煮浸し', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'なす', amount: '3本' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: 'だし汁', amount: '200ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: 'サラダ油', amount: '大さじ2' },
+      { name: '小ねぎ', amount: '2本' }
+    ] },
+  { id: 'r155', name: '切り干し大根の煮物', category: '和食', servings: 2,
+    ingredients: [
+      { name: '切り干し大根', amount: '30g' },
+      { name: '人参', amount: '40g' },
+      { name: '油揚げ', amount: '1枚' },
+      { name: 'だし汁', amount: '200ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' }
+    ] },
+  { id: 'r156', name: 'かぼちゃの煮物', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'かぼちゃ', amount: '400g' },
+      { name: 'だし汁', amount: '200ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1.5' }
+    ] },
+  { id: 'r157', name: '里芋の煮っころがし', category: '和食', servings: 2,
+    ingredients: [
+      { name: '里芋', amount: '400g' },
+      { name: 'だし汁', amount: '300ml' },
+      { name: '醤油', amount: '大さじ2.5' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1.5' }
+    ] },
+  { id: 'r158', name: '大学芋', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'さつまいも', amount: '300g' },
+      { name: '砂糖', amount: '大さじ3' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: '黒ごま', amount: '小さじ1' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r159', name: '揚げ出し豆腐', category: '和食', servings: 2,
+    ingredients: [
+      { name: '木綿豆腐', amount: '300g（1丁）' },
+      { name: '片栗粉', amount: '大さじ4' },
+      { name: 'だし汁', amount: '150ml' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: 'みりん', amount: '大さじ1.5' },
+      { name: '大根おろし', amount: '80g' },
+      { name: '小ねぎ', amount: '2本' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r160', name: '無限ピーマン', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ピーマン', amount: '5個' },
+      { name: 'ツナ缶', amount: '1缶' },
+      { name: '鶏がらスープの素', amount: '小さじ1' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '白ごま', amount: '小さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r161', name: 'きゅうりとわかめの酢の物', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'きゅうり', amount: '1本' },
+      { name: '乾燥わかめ', amount: '3g' },
+      { name: '酢', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: '白ごま', amount: '小さじ1' }
+    ] },
+  { id: 'r162', name: 'キャベツの浅漬け', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'キャベツ', amount: '200g' },
+      { name: 'きゅうり', amount: '1/2本' },
+      { name: '塩', amount: '小さじ1' },
+      { name: '昆布', amount: '5g' },
+      { name: '鷹の爪', amount: '1/2本' }
+    ] },
+  { id: 'r163', name: 'きゅうりの塩昆布和え', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'きゅうり', amount: '2本' },
+      { name: '塩昆布', amount: '10g' },
+      { name: 'ごま油', amount: '小さじ2' },
+      { name: '白ごま', amount: '小さじ1' }
+    ] },
+  { id: 'r164', name: '冷やしトマト', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'トマト', amount: '2個' },
+      { name: '大葉', amount: '2枚' },
+      { name: 'ポン酢', amount: '大さじ2' },
+      { name: 'ごま油', amount: '小さじ1' }
+    ] },
+  { id: 'r165', name: '枝豆', category: '和食', servings: 2,
+    ingredients: [
+      { name: '枝豆', amount: '250g' },
+      { name: '塩', amount: '大さじ1' }
+    ] },
+  { id: 'r166', name: 'ブロッコリーのおかか和え', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ブロッコリー', amount: '200g' },
+      { name: 'かつお節', amount: '3g' },
+      { name: '醤油', amount: '大さじ1' }
+    ] },
+  { id: 'r167', name: 'ほうれん草の白和え', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ほうれん草', amount: '150g' },
+      { name: '木綿豆腐', amount: '150g' },
+      { name: '白すりごま', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '醤油', amount: '小さじ2' }
+    ] },
+  { id: 'r168', name: 'こんにゃくのピリ辛炒め', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'こんにゃく', amount: '250g' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: '鷹の爪', amount: '1本' },
+      { name: 'かつお節', amount: '3g' }
+    ] },
+  { id: 'r169', name: 'ちくわの磯辺揚げ', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'ちくわ', amount: '4本' },
+      { name: '小麦粉', amount: '大さじ4' },
+      { name: '青のり', amount: '小さじ2' },
+      { name: '水', amount: '大さじ4' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r170', name: 'マカロニサラダ', category: 'その他', servings: 2,
+    ingredients: [
+      { name: 'マカロニ', amount: '80g' },
+      { name: 'きゅうり', amount: '1/2本' },
+      { name: 'ハム', amount: '2枚' },
+      { name: '玉ねぎ', amount: '30g' },
+      { name: 'マヨネーズ', amount: '大さじ4' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r171', name: 'コールスロー', category: 'その他', servings: 2,
+    ingredients: [
+      { name: 'キャベツ', amount: '250g' },
+      { name: '人参', amount: '40g' },
+      { name: 'コーン缶（粒）', amount: '50g' },
+      { name: 'マヨネーズ', amount: '大さじ3' },
+      { name: '酢', amount: '大さじ1' },
+      { name: '砂糖', amount: '小さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r172', name: '大根とツナのサラダ', category: 'その他', servings: 2,
+    ingredients: [
+      { name: '大根', amount: '300g' },
+      { name: 'ツナ缶', amount: '1缶' },
+      { name: 'マヨネーズ', amount: '大さじ3' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: '白ごま', amount: '小さじ1' },
+      { name: '小ねぎ', amount: '2本' }
+    ] },
+  { id: 'r173', name: 'ごぼうサラダ', category: 'その他', servings: 2,
+    ingredients: [
+      { name: 'ごぼう', amount: '150g' },
+      { name: '人参', amount: '40g' },
+      { name: 'マヨネーズ', amount: '大さじ3' },
+      { name: '白すりごま', amount: '大さじ2' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: '砂糖', amount: '小さじ1' }
+    ] },
+  { id: 'r174', name: 'もやしのナムル', category: 'その他', servings: 2,
+    ingredients: [
+      { name: 'もやし', amount: '200g' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '鶏がらスープの素', amount: '小さじ1/2' },
+      { name: 'にんにく（すりおろし）', amount: '少々' },
+      { name: '白ごま', amount: '小さじ1' },
+      { name: '塩', amount: '少々' }
+    ] },
+
+  // ---- 汁物 ----
+  { id: 'r175', name: 'けんちん汁', category: '和食', servings: 2,
+    ingredients: [
+      { name: '大根', amount: '100g' },
+      { name: '人参', amount: '50g' },
+      { name: 'ごぼう', amount: '50g' },
+      { name: '里芋', amount: '100g' },
+      { name: 'こんにゃく', amount: '80g' },
+      { name: '木綿豆腐', amount: '150g' },
+      { name: '長ねぎ', amount: '40g' },
+      { name: 'だし汁', amount: '600ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'ごま油', amount: '大さじ1' }
+    ] },
+  { id: 'r176', name: 'かきたま汁', category: '和食', servings: 2,
+    ingredients: [
+      { name: '卵', amount: '2個' },
+      { name: 'だし汁', amount: '500ml' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: 'みりん', amount: '小さじ2' },
+      { name: '片栗粉', amount: '小さじ2' },
+      { name: '三つ葉', amount: '少々' },
+      { name: '塩', amount: '少々' }
+    ] },
+  { id: 'r177', name: 'なめこと豆腐の味噌汁', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'なめこ', amount: '1袋' },
+      { name: '絹豆腐', amount: '150g' },
+      { name: '味噌', amount: '大さじ2' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '小ねぎ', amount: '2本' }
+    ] },
+  { id: 'r178', name: 'あさりの味噌汁', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'あさり', amount: '200g' },
+      { name: '味噌', amount: '大さじ2' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '小ねぎ', amount: '2本' }
+    ] },
+  { id: 'r179', name: 'じゃがいもと玉ねぎの味噌汁', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'じゃがいも', amount: '150g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: '味噌', amount: '大さじ2' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '乾燥わかめ', amount: '2g' }
+    ] },
+  { id: 'r180', name: 'お吸い物（麩と三つ葉）', category: '和食', servings: 2,
+    ingredients: [
+      { name: '麩', amount: '6個' },
+      { name: '三つ葉', amount: '少々' },
+      { name: 'かまぼこ', amount: '4切れ' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '醤油', amount: '小さじ2' },
+      { name: '塩', amount: '小さじ1/3' }
+    ] },
+  { id: 'r181', name: 'わかめと卵の中華スープ', category: '中華', servings: 2,
+    ingredients: [
+      { name: '卵', amount: '1個' },
+      { name: '乾燥わかめ', amount: '3g' },
+      { name: '長ねぎ', amount: '30g' },
+      { name: '鶏がらスープの素', amount: '小さじ2' },
+      { name: 'ごま油', amount: '小さじ1' },
+      { name: '白ごま', amount: '小さじ1' },
+      { name: '水', amount: '500ml' }
+    ] },
+  { id: 'r182', name: '野菜コンソメスープ', category: '洋食', servings: 2,
+    ingredients: [
+      { name: 'キャベツ', amount: '100g' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: '人参', amount: '40g' },
+      { name: 'ベーコン', amount: '40g' },
+      { name: 'コンソメ', amount: '1.5個' },
+      { name: '水', amount: '500ml' },
+      { name: 'パセリ', amount: '少々' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+
+  // ---- 中華の定番 ----
+  { id: 'r183', name: '天津飯', category: '中華', servings: 2,
+    ingredients: [
+      { name: '卵', amount: '4個' },
+      { name: 'かに風味かまぼこ', amount: '80g' },
+      { name: '長ねぎ', amount: '40g' },
+      { name: 'ご飯', amount: '400g' },
+      { name: '鶏がらスープの素', amount: '小さじ1' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: '酢', amount: '大さじ1' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '片栗粉', amount: '大さじ1' },
+      { name: 'ごま油', amount: '小さじ1' }
+    ] },
+  { id: 'r184', name: 'ニラ玉', category: '中華', servings: 2,
+    ingredients: [
+      { name: '卵', amount: '3個' },
+      { name: 'にら', amount: '100g' },
+      { name: '鶏がらスープの素', amount: '小さじ1/2' },
+      { name: '醤油', amount: '小さじ2' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r185', name: '肉団子の甘酢あん', category: '中華', servings: 2,
+    ingredients: [
+      { name: '豚ひき肉', amount: '300g' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: '卵', amount: '1個' },
+      { name: '片栗粉', amount: '大さじ2' },
+      { name: 'ケチャップ', amount: '大さじ2' },
+      { name: '酢', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ2' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r186', name: 'トマトと卵の中華炒め', category: '中華', servings: 2,
+    ingredients: [
+      { name: 'トマト', amount: '2個' },
+      { name: '卵', amount: '3個' },
+      { name: '長ねぎ', amount: '30g' },
+      { name: '鶏がらスープの素', amount: '小さじ1' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: '砂糖', amount: '小さじ1' }
+    ] },
+  { id: 'r187', name: 'レバニラ炒め', category: '中華', servings: 2,
+    ingredients: [
+      { name: '豚レバー', amount: '200g' },
+      { name: 'にら', amount: '100g' },
+      { name: 'もやし', amount: '150g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: '醤油', amount: '大さじ1.5' },
+      { name: 'オイスターソース', amount: '大さじ1' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '片栗粉', amount: '大さじ1' },
+      { name: 'ごま油', amount: '大さじ1' }
+    ] },
+  { id: 'r188', name: 'チンゲン菜と豚肉のオイスター炒め', category: '中華', servings: 2,
+    ingredients: [
+      { name: 'チンゲン菜', amount: '2株' },
+      { name: '豚こま切れ肉', amount: '150g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: 'オイスターソース', amount: '大さじ1.5' },
+      { name: '醤油', amount: '小さじ2' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '片栗粉', amount: '小さじ2' },
+      { name: 'ごま油', amount: '大さじ1' }
+    ] },
+  { id: 'r189', name: 'あんかけ焼きそば', category: '中華', servings: 2,
+    ingredients: [
+      { name: '中華蒸し麺', amount: '2玉' },
+      { name: '豚こま切れ肉', amount: '100g' },
+      { name: 'えび', amount: '60g' },
+      { name: '白菜', amount: '150g' },
+      { name: '人参', amount: '40g' },
+      { name: '生椎茸', amount: '2枚' },
+      { name: 'うずらの卵', amount: '4個' },
+      { name: '鶏がらスープの素', amount: '小さじ2' },
+      { name: 'オイスターソース', amount: '大さじ1' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: '片栗粉', amount: '大さじ1.5' },
+      { name: 'ごま油', amount: '大さじ1' }
+    ] },
+  { id: 'r190', name: '冷やし中華', category: '中華', servings: 2,
+    ingredients: [
+      { name: '中華麺', amount: '2玉' },
+      { name: 'ハム', amount: '4枚' },
+      { name: 'きゅうり', amount: '1本' },
+      { name: '卵', amount: '2個' },
+      { name: 'トマト', amount: '1個' },
+      { name: '醤油', amount: '大さじ3' },
+      { name: '酢', amount: '大さじ3' },
+      { name: '砂糖', amount: '大さじ2' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '白ごま', amount: '小さじ2' }
+    ] },
+
+  // ---- 洋食の定番 ----
+  { id: 'r191', name: 'ハヤシライス', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '牛切り落とし肉', amount: '250g' },
+      { name: '玉ねぎ', amount: '200g' },
+      { name: 'マッシュルーム', amount: '60g' },
+      { name: 'ハヤシライスルー', amount: '80g' },
+      { name: '赤ワイン', amount: '50ml' },
+      { name: '水', amount: '500ml' },
+      { name: 'バター', amount: '10g' },
+      { name: 'ご飯', amount: '400g' }
+    ] },
+  { id: 'r192', name: 'キーマカレー', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '合いびき肉', amount: '250g' },
+      { name: '玉ねぎ', amount: '150g' },
+      { name: '人参', amount: '50g' },
+      { name: 'ピーマン', amount: '1個' },
+      { name: 'トマト缶', amount: '1/2缶' },
+      { name: 'カレールー', amount: '60g' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '生姜（すりおろし）', amount: '10g' },
+      { name: 'ご飯', amount: '400g' },
+      { name: '卵黄', amount: '2個分' }
+    ] },
+  { id: 'r193', name: 'チキンドリア', category: '洋食', servings: 2,
+    ingredients: [
+      { name: 'ご飯', amount: '300g' },
+      { name: '鶏もも肉', amount: '150g' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: 'バター', amount: '25g' },
+      { name: '小麦粉', amount: '大さじ2.5' },
+      { name: '牛乳', amount: '300ml' },
+      { name: 'ピザ用チーズ', amount: '80g' },
+      { name: 'コンソメ', amount: '1/2個' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r194', name: 'ミートボールのトマト煮', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '合いびき肉', amount: '300g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: 'パン粉', amount: '20g' },
+      { name: '卵', amount: '1個' },
+      { name: 'トマト缶', amount: '1缶（400g）' },
+      { name: 'コンソメ', amount: '1個' },
+      { name: 'ケチャップ', amount: '大さじ1' },
+      { name: 'オリーブオイル', amount: '大さじ1' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: 'パセリ', amount: '少々' }
+    ] },
+  { id: 'r195', name: '鶏肉のクリーム煮', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '鶏もも肉', amount: '300g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: 'しめじ', amount: '80g' },
+      { name: 'ほうれん草', amount: '80g' },
+      { name: '牛乳', amount: '300ml' },
+      { name: '小麦粉', amount: '大さじ2' },
+      { name: 'バター', amount: '20g' },
+      { name: 'コンソメ', amount: '1個' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r196', name: 'ポークチャップ', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '豚ロース肉（とんかつ用）', amount: '2枚' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: 'ケチャップ', amount: '大さじ3' },
+      { name: 'ウスターソース', amount: '大さじ1.5' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: 'にんにく', amount: '1片' },
+      { name: 'サラダ油', amount: '大さじ1' }
+    ] },
+  { id: 'r197', name: 'えびピラフ', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '米', amount: '2合' },
+      { name: 'えび', amount: '150g' },
+      { name: '玉ねぎ', amount: '100g' },
+      { name: '人参', amount: '40g' },
+      { name: 'ピーマン', amount: '1個' },
+      { name: 'バター', amount: '20g' },
+      { name: 'コンソメ', amount: '1.5個' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r198', name: 'ツナとトマトのパスタ', category: '洋食', servings: 2,
+    ingredients: [
+      { name: 'スパゲッティ', amount: '200g' },
+      { name: 'ツナ缶', amount: '1缶' },
+      { name: 'トマト缶', amount: '1缶（400g）' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '玉ねぎ', amount: '80g' },
+      { name: 'オリーブオイル', amount: '大さじ2' },
+      { name: 'コンソメ', amount: '1/2個' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: 'パセリ', amount: '少々' }
+    ] },
+  { id: 'r199', name: 'チキンカツ', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '鶏むね肉', amount: '300g' },
+      { name: '小麦粉', amount: '大さじ3' },
+      { name: '卵', amount: '1個' },
+      { name: 'パン粉', amount: '60g' },
+      { name: 'キャベツ（千切り）', amount: '100g' },
+      { name: '中濃ソース', amount: '適量' },
+      { name: '揚げ油', amount: '適量' }
+    ] },
+  { id: 'r200', name: 'えびとブロッコリーのマヨ炒め', category: 'その他', servings: 2,
+    ingredients: [
+      { name: 'えび', amount: '200g' },
+      { name: 'ブロッコリー', amount: '200g' },
+      { name: 'マヨネーズ', amount: '大さじ3' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: 'にんにく', amount: '1片' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: '片栗粉', amount: '大さじ1' }
+    ] },
+
+  // ============== 日本の家庭定番 追加（v4・詳細分析による） ==============
+  { id: 'r201', name: '鮭のちゃんちゃん焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: '生鮭（切り身）', amount: '2切れ' },
+      { name: 'キャベツ', amount: '1/4個' },
+      { name: '玉ねぎ', amount: '1/2個' },
+      { name: '人参', amount: '1/4本' },
+      { name: 'しめじ', amount: '1/2株' },
+      { name: '味噌', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: '砂糖', amount: '小さじ2' },
+      { name: 'バター', amount: '10g' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r202', name: 'かきフライ', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'かき（むき身・加熱用）', amount: '200g' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: '小麦粉', amount: '適量' },
+      { name: '卵', amount: '1個' },
+      { name: 'パン粉', amount: '適量' },
+      { name: 'サラダ油（揚げ油）', amount: '適量' },
+      { name: 'キャベツ（千切り）', amount: '適量' }
+    ] },
+  { id: 'r203', name: 'いかと里芋の煮物', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: 'するめいか', amount: '1杯' },
+      { name: '里芋', amount: '6個（約400g）' },
+      { name: '生姜（薄切り）', amount: '1片' },
+      { name: 'だし汁', amount: '300ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ1' }
+    ] },
+  { id: 'r204', name: 'いわしの蒲焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'いわし（開き）', amount: '4尾' },
+      { name: '小麦粉', amount: '適量' },
+      { name: 'サラダ油', amount: '大さじ1' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '砂糖', amount: '小さじ1' },
+      { name: '生姜（すりおろし）', amount: '小さじ1/2' }
+    ] },
+  { id: 'r205', name: 'さばの竜田揚げ', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'さば（切り身）', amount: '半身2枚' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '生姜（すりおろし）', amount: '小さじ1' },
+      { name: '片栗粉', amount: '適量' },
+      { name: 'サラダ油（揚げ油）', amount: '適量' }
+    ] },
+  { id: 'r206', name: 'めかじきの照り焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'めかじき（切り身）', amount: '2切れ' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: '小麦粉', amount: '適量' },
+      { name: 'サラダ油', amount: '大さじ1/2' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '砂糖', amount: '小さじ1' }
+    ] },
+  { id: 'r207', name: 'あさりの酒蒸し', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'あさり（砂抜き済み）', amount: '300g' },
+      { name: '酒', amount: '大さじ3' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: '小ねぎ（小口切り）', amount: '適量' }
+    ] },
+  { id: 'r208', name: 'とんかつ', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '豚ロース肉（とんかつ用）', amount: '2枚' },
+      { name: '塩こしょう', amount: '適量' },
+      { name: '小麦粉', amount: '適量' },
+      { name: '卵', amount: '1個' },
+      { name: 'パン粉', amount: '適量' },
+      { name: 'サラダ油（揚げ油）', amount: '適量' },
+      { name: 'キャベツ（千切り）', amount: '2枚' }
+    ] },
+  { id: 'r209', name: 'メンチカツ', category: '洋食', servings: 2,
+    ingredients: [
+      { name: '合いびき肉', amount: '200g' },
+      { name: '玉ねぎ', amount: '1/2個' },
+      { name: '卵', amount: '1個' },
+      { name: 'パン粉（タネ用・衣用）', amount: '適量' },
+      { name: '小麦粉', amount: '適量' },
+      { name: '塩こしょう', amount: '適量' },
+      { name: 'サラダ油（揚げ油）', amount: '適量' },
+      { name: 'キャベツ（千切り）', amount: '2枚' }
+    ] },
+  { id: 'r210', name: '鶏むね肉のピカタ', category: '洋食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '鶏むね肉', amount: '1枚（約250g）' },
+      { name: '卵', amount: '1個' },
+      { name: '粉チーズ', amount: '大さじ1' },
+      { name: '小麦粉', amount: '適量' },
+      { name: '塩こしょう', amount: '適量' },
+      { name: 'サラダ油', amount: '大さじ1' },
+      { name: 'ケチャップ', amount: '適量' }
+    ] },
+  { id: 'r211', name: '豆乳鍋', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '豚バラ薄切り肉', amount: '200g' },
+      { name: '白菜', amount: '1/4個' },
+      { name: '長ねぎ', amount: '1本' },
+      { name: '人参', amount: '1/3本' },
+      { name: '木綿豆腐', amount: '1/2丁' },
+      { name: '無調整豆乳', amount: '400ml' },
+      { name: 'だし汁', amount: '300ml' },
+      { name: '味噌', amount: '大さじ1' },
+      { name: '鶏がらスープの素', amount: '小さじ2' },
+      { name: '塩', amount: '適量' }
+    ] },
+  { id: 'r212', name: '鶏団子鍋', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '鶏ひき肉', amount: '250g' },
+      { name: '長ねぎ（みじん切り）', amount: '1/2本' },
+      { name: '生姜（すりおろし）', amount: '小さじ1' },
+      { name: '片栗粉', amount: '大さじ1' },
+      { name: '白菜', amount: '1/4個' },
+      { name: 'しいたけ', amount: '2枚' },
+      { name: '木綿豆腐', amount: '1/2丁' },
+      { name: 'だし汁', amount: '800ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ2' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '塩', amount: '小さじ1/2' }
+    ] },
+  { id: 'r213', name: 'ちらし寿司', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '温かいご飯', amount: '500g' },
+      { name: '酢', amount: '大さじ3' },
+      { name: '砂糖', amount: '大さじ1と1/2' },
+      { name: '塩', amount: '小さじ1/2' },
+      { name: '卵', amount: '2個' },
+      { name: 'サラダ油', amount: '小さじ1' },
+      { name: 'ボイルえび', amount: '8尾' },
+      { name: 'きゅうり', amount: '1/2本' },
+      { name: 'かにかま', amount: '4本' },
+      { name: '刻み海苔', amount: '適量' },
+      { name: '白いりごま', amount: '大さじ1' }
+    ] },
+  { id: 'r214', name: 'きつねうどん', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: 'ゆでうどん', amount: '2玉' },
+      { name: '油揚げ', amount: '2枚' },
+      { name: 'だし汁', amount: '700ml' },
+      { name: '醤油', amount: '大さじ2と1/2' },
+      { name: 'みりん', amount: '大さじ3' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: '塩', amount: '小さじ1/4' },
+      { name: '長ねぎ', amount: '1/2本' }
+    ] },
+  { id: 'r215', name: '釜玉うどん', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '冷凍うどん', amount: '2玉' },
+      { name: '卵', amount: '2個' },
+      { name: 'めんつゆ（3倍濃縮）', amount: '大さじ2' },
+      { name: '小ねぎ', amount: '適量' },
+      { name: 'かつお節', amount: '適量' }
+    ] },
+  { id: 'r216', name: 'サラダうどん', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '冷凍うどん', amount: '2玉' },
+      { name: 'ツナ缶', amount: '1缶（70g）' },
+      { name: 'レタス', amount: '2枚' },
+      { name: 'トマト', amount: '1個' },
+      { name: 'きゅうり', amount: '1/2本' },
+      { name: 'めんつゆ（3倍濃縮）', amount: '大さじ4' },
+      { name: '水', amount: '大さじ4' },
+      { name: 'マヨネーズ', amount: '大さじ2' },
+      { name: '刻み海苔', amount: '適量' }
+    ] },
+  { id: 'r217', name: 'ちゃんぽん', category: '中華', servings: 2, role: 'main',
+    ingredients: [
+      { name: '中華蒸し麺', amount: '2玉' },
+      { name: '豚こま切れ肉', amount: '100g' },
+      { name: 'シーフードミックス（冷凍）', amount: '100g' },
+      { name: 'キャベツ', amount: '2枚' },
+      { name: 'もやし', amount: '1/2袋' },
+      { name: '人参', amount: '1/4本' },
+      { name: 'かまぼこ', amount: '4切れ' },
+      { name: '水', amount: '600ml' },
+      { name: '鶏がらスープの素', amount: '大さじ1' },
+      { name: '牛乳', amount: '100ml' },
+      { name: 'ごま油', amount: '小さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r218', name: 'いなり寿司', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '温かいご飯', amount: '400g' },
+      { name: '油揚げ', amount: '4枚' },
+      { name: '酢', amount: '大さじ2' },
+      { name: '砂糖', amount: '大さじ3（うち酢飯用大さじ1）' },
+      { name: '塩', amount: '小さじ1/3' },
+      { name: 'だし汁', amount: '200ml' },
+      { name: '醤油', amount: '大さじ2' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: '白いりごま', amount: '大さじ1' }
+    ] },
+  { id: 'r219', name: '人参しりしり', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: '人参', amount: '1本（150g）' },
+      { name: '卵', amount: '1個' },
+      { name: 'ツナ缶', amount: '1/2缶' },
+      { name: 'ごま油', amount: '小さじ2' },
+      { name: '醤油', amount: '小さじ2' },
+      { name: 'みりん', amount: '小さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r220', name: '煮卵（味玉）', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: '卵', amount: '4個' },
+      { name: 'めんつゆ（3倍濃縮）', amount: '大さじ4' },
+      { name: '水', amount: '大さじ4' }
+    ] },
+  { id: 'r221', name: 'かぼちゃサラダ', category: '洋食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'かぼちゃ', amount: '1/4個（300g）' },
+      { name: '玉ねぎ', amount: '1/8個' },
+      { name: 'ハム', amount: '2枚' },
+      { name: 'マヨネーズ', amount: '大さじ3' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r222', name: '焼きなす', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'なす', amount: '2本' },
+      { name: '生姜（すりおろし）', amount: '小さじ1' },
+      { name: 'かつお節', amount: '適量' },
+      { name: '醤油', amount: '適量' }
+    ] },
+  { id: 'r223', name: 'いんげんの胡麻和え', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'いんげん', amount: '150g' },
+      { name: '白すりごま', amount: '大さじ2' },
+      { name: '砂糖', amount: '小さじ2' },
+      { name: '醤油', amount: '小さじ2' }
+    ] },
+  { id: 'r224', name: '大根のそぼろ煮', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: '大根', amount: '400g（約1/3本）' },
+      { name: '鶏ひき肉', amount: '100g' },
+      { name: 'だし汁', amount: '300ml' },
+      { name: '醤油', amount: '大さじ1と1/2' },
+      { name: 'みりん', amount: '大さじ1と1/2' },
+      { name: '酒', amount: '大さじ1' },
+      { name: '砂糖', amount: '小さじ1' },
+      { name: '生姜（すりおろし）', amount: '小さじ1' },
+      { name: '片栗粉', amount: '大さじ1' }
+    ] },
+  { id: 'r225', name: 'やみつき塩キャベツ', category: '中華', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'キャベツ', amount: '1/4個（250g）' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '鶏がらスープの素', amount: '小さじ1' },
+      { name: 'にんにく（すりおろし）', amount: '少々' },
+      { name: '塩', amount: '少々' },
+      { name: '白いりごま', amount: '適量' }
+    ] },
+  { id: 'r226', name: 'きのこのバター醤油炒め', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'しめじ', amount: '1パック（100g）' },
+      { name: 'えのき', amount: '1袋（100g）' },
+      { name: 'バター', amount: '10g' },
+      { name: '醤油', amount: '小さじ2' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r227', name: 'さつまいものレモン煮', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'さつまいも', amount: '1本（250g）' },
+      { name: '砂糖', amount: '大さじ2' },
+      { name: 'レモン汁', amount: '大さじ1' },
+      { name: '水', amount: '200ml' },
+      { name: '塩', amount: '少々' }
+    ] },
+  { id: 'r228', name: '五目豆', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: '大豆（水煮）', amount: '150g' },
+      { name: '人参', amount: '1/3本' },
+      { name: 'ごぼう', amount: '1/3本' },
+      { name: 'こんにゃく', amount: '1/3枚' },
+      { name: '昆布', amount: '5cm角1枚' },
+      { name: 'だし汁', amount: '200ml' },
+      { name: '醤油', amount: '大さじ1と1/2' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: 'みりん', amount: '大さじ1' }
+    ] },
+  { id: 'r229', name: 'ほうれん草とベーコンのバターソテー', category: '洋食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: 'ほうれん草', amount: '1束（200g）' },
+      { name: 'ベーコン', amount: '2枚' },
+      { name: 'バター', amount: '10g' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r230', name: '卯の花（おからの炒り煮）', category: '和食', servings: 2, role: 'sub',
+    ingredients: [
+      { name: '生おから', amount: '100g' },
+      { name: '人参', amount: '1/4本' },
+      { name: '油揚げ', amount: '1/2枚' },
+      { name: '小ねぎ', amount: '適量' },
+      { name: 'だし汁', amount: '150ml' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: '砂糖', amount: '大さじ1' },
+      { name: 'みりん', amount: '大さじ1' },
+      { name: 'サラダ油', amount: '大さじ1/2' }
+    ] },
+  { id: 'r231', name: '大根と油揚げの味噌汁', category: '和食', servings: 2, role: 'soup',
+    ingredients: [
+      { name: '大根', amount: '100g' },
+      { name: '油揚げ', amount: '1/2枚' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '味噌', amount: '大さじ1と1/2' },
+      { name: '小ねぎ', amount: '適量' }
+    ] },
+  { id: 'r232', name: 'なすの味噌汁', category: '和食', servings: 2, role: 'soup',
+    ingredients: [
+      { name: 'なす', amount: '1本' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '味噌', amount: '大さじ1と1/2' },
+      { name: '小ねぎ', amount: '適量' }
+    ] },
+  { id: 'r233', name: 'さつまいもの味噌汁', category: '和食', servings: 2, role: 'soup',
+    ingredients: [
+      { name: 'さつまいも', amount: '150g' },
+      { name: '長ねぎ', amount: '1/4本' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '味噌', amount: '大さじ1と1/2' }
+    ] },
+  { id: 'r234', name: '白菜と油揚げの味噌汁', category: '和食', servings: 2, role: 'soup',
+    ingredients: [
+      { name: '白菜', amount: '2枚（150g）' },
+      { name: '油揚げ', amount: '1/2枚' },
+      { name: 'だし汁', amount: '400ml' },
+      { name: '味噌', amount: '大さじ1と1/2' }
+    ] },
+  { id: 'r235', name: 'チキンのトマト煮', category: '洋食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '鶏もも肉', amount: '300g' },
+      { name: '玉ねぎ', amount: '1/2個' },
+      { name: 'にんにく', amount: '1かけ' },
+      { name: 'カットトマト缶', amount: '1缶（400g）' },
+      { name: 'コンソメ', amount: '小さじ1' },
+      { name: '砂糖', amount: '小さじ1' },
+      { name: 'オリーブオイル', amount: '大さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r236', name: 'ポークピカタ', category: '洋食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '豚ロース肉（とんかつ用）', amount: '2枚' },
+      { name: '卵', amount: '1個' },
+      { name: '粉チーズ', amount: '大さじ2' },
+      { name: '小麦粉', amount: '適量' },
+      { name: '塩こしょう', amount: '少々' },
+      { name: 'サラダ油', amount: '大さじ1' },
+      { name: 'ケチャップ', amount: '適量' }
+    ] },
+  { id: 'r237', name: 'かぼちゃのポタージュ', category: '洋食', servings: 2, role: 'soup',
+    ingredients: [
+      { name: 'かぼちゃ', amount: '1/4個（約300g）' },
+      { name: '玉ねぎ', amount: '1/4個' },
+      { name: 'バター', amount: '10g' },
+      { name: '牛乳', amount: '300ml' },
+      { name: 'コンソメ', amount: '小さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r238', name: '焼きビーフン', category: '中華', servings: 2, role: 'main',
+    ingredients: [
+      { name: 'ビーフン', amount: '150g' },
+      { name: '豚こま切れ肉', amount: '100g' },
+      { name: 'キャベツ', amount: '2枚' },
+      { name: '人参', amount: '1/4本' },
+      { name: 'ニラ', amount: '1/2束' },
+      { name: '鶏がらスープの素', amount: '小さじ1' },
+      { name: '醤油', amount: '大さじ1' },
+      { name: '酒', amount: '大さじ1' },
+      { name: 'ごま油', amount: '大さじ1' },
+      { name: '水', amount: '150ml' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r239', name: 'ワンタンスープ', category: '中華', servings: 2, role: 'soup',
+    ingredients: [
+      { name: 'ワンタンの皮', amount: '16枚' },
+      { name: '豚ひき肉', amount: '100g' },
+      { name: '長ねぎ', amount: '1/2本' },
+      { name: '生姜（すりおろし）', amount: '小さじ1' },
+      { name: '鶏がらスープの素', amount: '大さじ1/2' },
+      { name: '醤油', amount: '小さじ1' },
+      { name: 'ごま油', amount: '小さじ1' },
+      { name: '水', amount: '600ml' },
+      { name: '小ねぎ', amount: '適量' }
+    ] },
+  { id: 'r240', name: '白菜のクリーム煮', category: '中華', servings: 2, role: 'sub',
+    ingredients: [
+      { name: '白菜', amount: '1/8株' },
+      { name: 'ハム', amount: '4枚' },
+      { name: '牛乳', amount: '200ml' },
+      { name: '水', amount: '100ml' },
+      { name: '鶏がらスープの素', amount: '小さじ1' },
+      { name: '片栗粉', amount: '大さじ1' },
+      { name: 'ごま油', amount: '小さじ1' },
+      { name: '塩こしょう', amount: '少々' }
+    ] },
+  { id: 'r241', name: 'さばの塩焼き', category: '和食', servings: 2,
+    ingredients: [
+      { name: 'さば（半身）', amount: '2枚' },
+      { name: '塩', amount: '小さじ1' },
+      { name: '大根おろし', amount: '100g' },
+      { name: 'すだち', amount: '1個' },
+      { name: '醤油', amount: '少々' }
+    ] },
+  { id: 'r242', name: 'お刺身盛り合わせ', category: '和食', servings: 2, role: 'main',
+    ingredients: [
+      { name: '刺身盛り合わせ', amount: '300g' },
+      { name: '大根（つま）', amount: '100g' },
+      { name: '大葉', amount: '4枚' },
+      { name: 'わさび', amount: '適量' },
+      { name: '醤油', amount: '適量' }
+    ] },
+  { id: 'r243', name: 'おうち焼肉（ホットプレート）', category: '和食', servings: 2,
+    ingredients: [
+      { name: '焼肉用牛肉', amount: '300g' },
+      { name: '玉ねぎ', amount: '1個' },
+      { name: 'ピーマン', amount: '2個' },
+      { name: 'もやし', amount: '1袋' },
+      { name: 'かぼちゃ（薄切り）', amount: '80g' },
+      { name: '焼肉のたれ', amount: '適量' },
+      { name: 'ご飯', amount: '400g' }
     ] }
 ];
 

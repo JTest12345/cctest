@@ -36,6 +36,17 @@
   <main class="content">
     <!-- 今週の献立 -->
     <section id="tab-week" class="tab-panel active">
+      <div id="planBanner" class="plan-banner hidden">
+        <div class="plan-banner-head">
+          <div class="plan-banner-text" id="planBannerText">📝 週末は来週の献立づくり！</div>
+          <button id="planBannerClose" class="install-banner-close" aria-label="閉じる">✕</button>
+        </div>
+        <div class="plan-banner-actions">
+          <button id="planSuggestBtn" class="plan-act primary" type="button">🍱 来週を自動提案</button>
+          <button id="planGotoNextBtn" class="plan-act" type="button">📅 来週を開く</button>
+          <button id="planShopBtn" class="plan-act" type="button">🛒 来週の買い物リスト</button>
+        </div>
+      </div>
       <div class="week-header">
         <button id="prevWeek" class="week-nav-btn">‹</button>
         <div class="week-label-wrap">
@@ -352,6 +363,10 @@
     <div class="modal-content">
       <button class="modal-close" data-close="shoppingModal">✕</button>
       <h2 class="modal-title">🛒 買い物リスト</h2>
+      <div class="shop-week-toggle">
+        <button class="swk-btn" data-off="0" id="swkThis" type="button">今週</button>
+        <button class="swk-btn" data-off="1" id="swkNext" type="button">来週</button>
+      </div>
       <div id="shoppingWeekLabel" class="shopping-week-label"></div>
       <div class="shopping-options">
         <label class="toggle-label"><input type="checkbox" id="excludeStaplesToggle"> 常備品（調味料など）を除く</label>

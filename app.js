@@ -94,7 +94,8 @@ const state = {
   editingPurchaseItems: [],
   editingReceiptPhotoId: null,
   statsPeriod: '30',      // カテゴリ構成の集計期間 '30' | 'all'
-  dayPickerRecipeId: null // 「また作る」対象レシピ
+  dayPickerRecipeId: null, // 「また作る」対象レシピ
+  shoppingWeekOffset: 0    // 買い物リストの対象週（0=表示中の週, 1=その翌週）
 };
 
 // ===================================================================
@@ -819,6 +820,7 @@ function init() {
   bindWeekSwipe();
   bindInstallBanner();
   bindSuggestHandlers();
+  bindPlanBanner();
 
   state.recordsMonth = firstOfMonth(new Date());
   if (state.suggestWithSub === undefined) state.suggestWithSub = true;
@@ -852,9 +854,24 @@ function loadAllData() {
     Storage.save(STORAGE_KEYS.recipes, state.recipes);
     Storage.save(STORAGE_KEYS.sampleDataVersion, currentSampleVersion);
   } else if (savedSampleVersion < currentSampleVersion) {
-    // バージョンアップ時：サンプルのみ入れ替え、ユーザー追加分（'u'始まりID）は保護
+    // バージョンアップ時：サンプルを最新版に入れ替え。
+    // ユーザー追加分（'u'始まりID）と、サンプルに付けたユーザー設定
+    // （評価・ジャンル・提案除外・メモ・URL・編集内容）は保持する。
     const userRecipes = savedRecipes.filter(r => typeof r.id === 'string' && r.id.startsWith('u'));
-    state.recipes = [...(window.SAMPLE_RECIPES || []), ...userRecipes];
+    const savedById = new Map(savedRecipes.map(r => [r.id, r]));
+    const mergedSamples = (window.SAMPLE_RECIPES || []).map(s => {
+      const old = savedById.get(s.id);
+      if (!old) return s;
+      if (old.updatedAt) return old;           // ユーザーが編集したサンプルはそのまま尊重
+      const m = { ...s };                      // 未編集なら新データ＋ユーザー設定を引き継ぐ
+      if (old.rating) m.rating = old.rating;
+      if (old.role && old.role !== 'auto') m.role = old.role;
+      if (old.excludeFromSuggest) m.excludeFromSuggest = true;
+      if (old.note) m.note = old.note;
+      if (old.url) m.url = old.url;
+      return m;
+    });
+    state.recipes = [...mergedSamples, ...userRecipes];
     Storage.save(STORAGE_KEYS.recipes, state.recipes);
     Storage.save(STORAGE_KEYS.sampleDataVersion, currentSampleVersion);
     // 通知は後でinitの最後に
@@ -1077,6 +1094,61 @@ function bindWeekSwipe() {
   }, { passive: true });
 }
 
+// ===================================================================
+// 週末プランニングバナー
+// 「土曜に来週の献立を考えて買い物」の流れをサポート：
+// 金・土・日に、来週の献立が5品未満ならバナーで誘導する
+// ===================================================================
+function planBannerInfo(now) {
+  const dow = now.getDay(); // 0=日, 5=金, 6=土
+  const isPlanDay = (dow === 5 || dow === 6 || dow === 0);
+  const realMonday = getMondayOf(now);
+  const nextMonday = addDays(realMonday, 7);
+  const nextWk = getWeekKey(nextMonday);
+  const nextCount = countPlanSlots({ [nextWk]: state.weekPlan[nextWk] });
+  let dismissed = false;
+  try { dismissed = localStorage.getItem('wr_plan_banner_dismissed') === nextWk; } catch (e) {}
+  const show = isPlanDay && nextCount < 5 && !dismissed;
+  const text = nextCount === 0
+    ? `📝 週末は来週（${formatJapaneseDate(nextMonday)}〜）の献立づくり！ まだ何も決まっていません`
+    : `📝 来週（${formatJapaneseDate(nextMonday)}〜）の献立はあと少し！ 現在 ${nextCount}品`;
+  return { show, text, nextMonday, nextWk };
+}
+
+function maybeShowPlanBanner() {
+  const banner = document.getElementById('planBanner');
+  if (!banner) return;
+  const info = planBannerInfo(new Date());
+  banner.classList.toggle('hidden', !info.show);
+  if (info.show) document.getElementById('planBannerText').textContent = info.text;
+}
+
+function bindPlanBanner() {
+  const banner = document.getElementById('planBanner');
+  if (!banner) return;
+  document.getElementById('planBannerClose').addEventListener('click', () => {
+    const info = planBannerInfo(new Date());
+    try { localStorage.setItem('wr_plan_banner_dismissed', info.nextWk); } catch (e) {}
+    banner.classList.add('hidden');
+  });
+  document.getElementById('planSuggestBtn').addEventListener('click', () => {
+    // 実際の今週に合わせてから提案モーダルを開く（「翌週に反映」で来週へ）
+    state.currentWeekStart = getMondayOf(new Date());
+    renderWeek();
+    openSuggestModal();
+  });
+  document.getElementById('planGotoNextBtn').addEventListener('click', () => {
+    state.currentWeekStart = addDays(getMondayOf(new Date()), 7);
+    renderWeek();
+    showToast('来週を表示しています。＋追加や自動提案で献立を組めます');
+  });
+  document.getElementById('planShopBtn').addEventListener('click', () => {
+    state.currentWeekStart = getMondayOf(new Date());
+    renderWeek();
+    openShoppingModal(1); // 来週分の買い物リスト
+  });
+}
+
 // ホーム画面追加の案内バナー（iOS Safariのブラウザ表示時のみ）
 function bindInstallBanner() {
   const banner = document.getElementById('installBanner');
@@ -1109,6 +1181,9 @@ function renderWeek() {
   if (todayBtn) {
     todayBtn.classList.toggle('hidden', formatDate(monday) === formatDate(getMondayOf(new Date())));
   }
+
+  // 週末プランニングバナーの表示判定
+  maybeShowPlanBanner();
 
   const container = document.getElementById('weekContainer');
   container.innerHTML = '';
@@ -2100,7 +2175,14 @@ function isStaple(name) {
 // 買い物リスト
 // ===================================================================
 function bindShoppingHandlers() {
-  document.getElementById('shoppingListBtn').addEventListener('click', openShoppingModal);
+  document.getElementById('shoppingListBtn').addEventListener('click', () => openShoppingModal());
+  document.querySelectorAll('.swk-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.shoppingWeekOffset = parseInt(btn.dataset.off, 10) || 0;
+      syncShoppingWeekUI();
+      renderShoppingList();
+    });
+  });
   document.getElementById('excludeStaplesToggle').addEventListener('change', (e) => {
     const st = getWeekShoppingState();
     st.excludeStaples = e.target.checked;
@@ -2122,8 +2204,26 @@ function bindShoppingHandlers() {
 
 function currentWeekKey() { return getWeekKey(state.currentWeekStart); }
 
+// 買い物リストの対象週（表示中の週 or その翌週）
+function shoppingMonday() {
+  return addDays(state.currentWeekStart, (state.shoppingWeekOffset || 0) * 7);
+}
+function shoppingWeekKey() { return getWeekKey(shoppingMonday()); }
+
+// 賢いデフォルト：金土日で「表示中の週＝実際の今週」なら、来週分の買い物を提案
+function defaultShoppingOffset() {
+  const today = new Date();
+  const dow = today.getDay(); // 0=日,5=金,6=土
+  const isWeekend = (dow === 5 || dow === 6 || dow === 0);
+  if (!isWeekend) return 0;
+  if (formatDate(state.currentWeekStart) !== formatDate(getMondayOf(today))) return 0;
+  const nextWk = getWeekKey(addDays(state.currentWeekStart, 7));
+  const hasNext = countPlanSlots({ [nextWk]: state.weekPlan[nextWk] }) > 0;
+  return hasNext ? 1 : 0;
+}
+
 function getWeekShoppingState() {
-  const wk = currentWeekKey();
+  const wk = shoppingWeekKey();
   if (!state.shopping[wk]) {
     state.shopping[wk] = { checked: {}, extras: [], excludeStaples: false, excludeCompleted: false };
   }
@@ -2135,7 +2235,7 @@ function getWeekShoppingState() {
 function saveShopping() { Storage.save(STORAGE_KEYS.shopping, state.shopping); }
 
 function aggregateWeekIngredients(excludeCompleted) {
-  const week = state.weekPlan[currentWeekKey()] || {};
+  const week = state.weekPlan[shoppingWeekKey()] || {};
   const map = {};
   DAY_ORDER.forEach(dayKey => {
     const slots = Array.isArray(week[dayKey]) ? week[dayKey] : [];
@@ -2156,16 +2256,29 @@ function aggregateWeekIngredients(excludeCompleted) {
   return Object.values(map);
 }
 
-function openShoppingModal() {
+function openShoppingModal(offset) {
+  // クリックイベント等が渡ってきた場合は賢いデフォルトを使う
+  state.shoppingWeekOffset = (typeof offset === 'number') ? offset : defaultShoppingOffset();
+  syncShoppingWeekUI();
+  renderShoppingList();
+  showModal('shoppingModal');
+}
+
+// 週切替トグル・ラベル・オプションを現在の対象週に同期
+function syncShoppingWeekUI() {
   const st = getWeekShoppingState();
   document.getElementById('excludeStaplesToggle').checked = !!st.excludeStaples;
   document.getElementById('excludeCompletedToggle').checked = !!st.excludeCompleted;
-  const monday = state.currentWeekStart;
+  const monday = shoppingMonday();
   const sunday = addDays(monday, 6);
   document.getElementById('shoppingWeekLabel').textContent =
     `${formatJapaneseDate(monday)}（月）〜 ${formatJapaneseDate(sunday)}（日）の献立から集計`;
-  renderShoppingList();
-  showModal('shoppingModal');
+  // トグルのラベルに実際の日付を表示（表示中の週が今週でない場合も明確に）
+  const nextMonday = addDays(state.currentWeekStart, 7);
+  document.getElementById('swkThis').textContent = `${formatJapaneseDate(state.currentWeekStart)}〜の週`;
+  document.getElementById('swkNext').textContent = `${formatJapaneseDate(nextMonday)}〜の週`;
+  document.querySelectorAll('.swk-btn').forEach(b =>
+    b.classList.toggle('active', parseInt(b.dataset.off, 10) === state.shoppingWeekOffset));
 }
 
 function renderShoppingList() {
@@ -2282,7 +2395,7 @@ async function shareShoppingList() {
   let items = aggregateWeekIngredients(st.excludeCompleted);
   if (st.excludeStaples) items = items.filter(it => !isStaple(it.name));
 
-  const monday = state.currentWeekStart;
+  const monday = shoppingMonday();
   const sunday = addDays(monday, 6);
   let text = `🛒 買い物リスト（${formatJapaneseDate(monday)}〜${formatJapaneseDate(sunday)}）\n\n`;
 
@@ -3046,7 +3159,8 @@ function isFriedRecipe(recipe) {
 }
 
 // 乾物・だし・缶詰・冷凍など（生の主材料ではない＝日持ちする・主たんぱく源ではない）
-const PANTRY_MARK = /節|だし|出汁|ぶし|乾|干し|缶|冷凍|ふりかけ/;
+// ※「ぶし」単体は「しゃぶしゃぶ用」に誤マッチするため「かつおぶし/削りぶし」に限定
+const PANTRY_MARK = /節|だし|出汁|かつおぶし|削りぶし|乾|干し|缶|冷凍|ふりかけ/;
 // 乳製品（「牛乳」が「牛」肉と誤判定されるのを防ぐ・主たんぱく源からも除外）
 const DAIRY_RE = /牛乳|生クリーム|ヨーグルト|チーズ|バター|練乳|牛脂/;
 
@@ -3067,8 +3181,8 @@ function recipeNutritionInfo(recipe) {
 
 // ---- 賞味期限（土曜まとめ買い基準・一般的な日持ち日数） ----
 const SHELF_TIERS = [
-  { days: 2, kw: ['ひき肉', '挽き肉', 'ミンチ', '合いびき', '刺身', '鮭', 'さば', 'ぶり', 'あじ', 'いわし', 'さんま', 'まぐろ', 'サーモン', 'かつお', 'たら', 'えび', 'いか', 'たこ', 'あさり', 'しじみ', '牡蠣', 'かき', 'ほたて', '貝', 'かに', '魚', 'しらす', 'もやし', 'にら', 'ほうれん草', '小松菜', '春菊', '豆苗', '貝割れ', 'パクチー', 'ひき'] },
-  { days: 3, kw: ['鶏', '豚', '牛', 'ささみ', '手羽', 'もも肉', 'ロース', 'バラ肉', '肩ロース', 'レバー', '豆腐', '厚揚げ', '油揚げ', 'しめじ', 'えのき', '椎茸', 'しいたけ', 'まいたけ', 'エリンギ', 'きのこ', 'ブロッコリー', 'アスパラ', 'トマト', 'きゅうり', '牛乳', '生クリーム', 'レタス', '水菜', 'チンゲン菜', 'オクラ'] },
+  { days: 2, kw: ['ひき肉', '挽き肉', 'ミンチ', '合いびき', '刺身', '鮭', 'さば', 'ぶり', 'あじ', 'いわし', 'さんま', 'まぐろ', 'サーモン', 'かつお', 'たら', 'ほっけ', 'かれい', 'さわら', '白身魚', 'えび', 'いか', 'たこ', 'あさり', 'しじみ', '牡蠣', 'かき', 'ほたて', '貝', 'かに', '魚', 'しらす', 'もやし', 'にら', 'ほうれん草', '小松菜', '春菊', '豆苗', '貝割れ', 'パクチー', '三つ葉', 'ひき'] },
+  { days: 3, kw: ['鶏', '豚', '牛', 'ささみ', '手羽', 'もも肉', 'ロース', 'バラ肉', '肩ロース', 'レバー', '豆腐', '厚揚げ', '油揚げ', 'しめじ', 'えのき', '椎茸', 'しいたけ', 'まいたけ', 'エリンギ', 'なめこ', 'きのこ', 'ブロッコリー', 'アスパラ', 'トマト', 'きゅうり', '牛乳', '生クリーム', 'レタス', '水菜', 'チンゲン菜', 'オクラ', 'ゴーヤ'] },
   { days: 5, kw: ['ピーマン', 'パプリカ', 'なす', 'ズッキーニ', 'ねぎ', '長ねぎ', '小ねぎ', 'セロリ', 'いんげん', 'ハム', 'ベーコン', 'ウインナー', 'ソーセージ', 'こんにゃく', 'しらたき', '枝豆', 'みょうが', '大葉'] },
   { days: 9, kw: ['玉ねぎ', '人参', 'にんじん', 'じゃがいも', '大根', 'ごぼう', 'れんこん', 'かぼちゃ', 'さつまいも', '里芋', 'キャベツ', '白菜', '卵', 'たまご', 'うずら', 'りんご', 'ちくわ', 'かまぼこ', 'はんぺん', 'チーズ', 'たけのこ'] }
 ];
@@ -3128,9 +3242,9 @@ const HOT_RE = /シチュー|グラタン|ドリア|ポトフ|煮込み|あん�
 const COOL_RE = /冷奴|冷や奴|そうめん|冷やし|冷し|冷製|ガスパチョ|カプレーゼ|酢の物|冷しゃぶ|ざる/;
 function warmthOf(recipe) {
   const nm = recipe.name || '';
+  if (COOL_RE.test(nm)) return 'cool';   // 「冷しゃぶ」等を鍋と誤判定しないよう冷菜を先に判定
   if (NABE_RE.test(nm)) return 'nabe';
   if (HOT_RE.test(nm)) return 'hot';
-  if (COOL_RE.test(nm)) return 'cool';
   return 'any';
 }
 const SEASON_LABEL = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' };

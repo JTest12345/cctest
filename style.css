@@ -213,6 +213,35 @@ input, textarea, select { font-family: inherit; font-size: 16px; color: var(--te
 }
 .today-btn:active { background: var(--accent-weak-press); }
 
+/* ===== 週末プランニングバナー ===== */
+.plan-banner {
+  background: var(--accent-weak);
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  padding: 12px 12px 10px;
+  margin-bottom: 12px;
+}
+.plan-banner-head { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+.plan-banner-text { flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--text); line-height: 1.5; }
+.plan-banner-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.plan-act {
+  padding: 9px 12px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--accent-border);
+  color: var(--accent); font-size: 0.82rem; font-weight: 600;
+}
+.plan-act:active { background: var(--accent-weak-press); }
+.plan-act.primary { background: var(--btn-accent); color: #fff; border-color: var(--btn-accent); }
+.plan-act.primary:active { background: var(--btn-accent-press); }
+
+/* ===== 買い物リストの週切替 ===== */
+.shop-week-toggle { display: flex; gap: 6px; margin-bottom: 8px; }
+.swk-btn {
+  flex: 1; padding: 9px 0; border-radius: 10px;
+  background: var(--chip-bg); color: var(--text-mid);
+  border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600;
+}
+.swk-btn.active { background: var(--btn-accent); color: #fff; border-color: var(--btn-accent); }
+
 /* ===== 週ツールバー ===== */
 .week-toolbar { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; }
 .tool-btn {
